@@ -34,7 +34,11 @@
 
 **Cqlsh**
 1. Open Terminal 
-2. Execute `docker exec `
+2. Execute `docker exec -it faces /bin/bash`
+3. Execute `cqlsh` 
+   - (here you might have to try a couple of time) 
+4. Wait for it to connect. 
+5. Execute provided commands. 
 ### Python 
 ```
 pip install dlib face-recognition numpy Pillow scylla-driver pickle
