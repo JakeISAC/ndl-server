@@ -20,6 +20,12 @@ class DatabaseOperations:
         self._session.execute(query, [person.id, person.authorization.value, person.name, person.images_path,
                                       encoded_face_encodings])
 
+    """
+        TODO: rewrite the function to be more interactive and allow search over: name, id, authorization.
+                Remember to add ALLOW FILTERING at the end since, id and authorization not part of primary key. 
+        
+        In general I will have to redesign the DB schema for this. For now it can stay as is. 
+    """
     def search(self, face_encodings=None, name=None):
         try:
             found = []
