@@ -21,7 +21,7 @@
    );
    ```
 
-##### How to access ScyllaDB
+### How to access ScyllaDB
 **JetBrains IDE**
 1. On the bar on the right side there is a DB button. 
 2. In the left top part of the pop up window click the plus. 
