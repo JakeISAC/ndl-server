@@ -9,6 +9,8 @@
 ### Python 
 `pip install dlib face-recognition numpy Pillow scylla-driver pickle`
 
+**Please make sure that you are installing the packages in the correct python enviroment**
+
 *Note: `dlib` requires CMake.*
 
 ##### Install CMake
