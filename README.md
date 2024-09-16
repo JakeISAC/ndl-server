@@ -21,6 +21,18 @@
    );
    ```
 
+##### How to access ScyllaDB
+**JetBrains IDE**
+1. On the bar on the right side there is a DB button. 
+2. In the left top part of the pop up window click the plus. 
+3. Click Add Source 
+4. Choose Appache Cassandra
+5. Leave the config as is but chnage the password
+   - username: cassandra 
+   - password: cassandra
+6. After comppleting these steps open a `console` and execute provided commands. 
+
+
 ### Python 
 ```
 pip install dlib face-recognition numpy Pillow scylla-driver pickle
