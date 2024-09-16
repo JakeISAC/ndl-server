@@ -6,7 +6,7 @@
 
      *This command will first pull and then start a docker container (name does not matter). Takes a few seconds to initialize*
 
-#### ScyllaDB
+### ScyllaDB
 1. ```
    CREATE KEYSPACE face_recognition WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor' : 1};
    ```
