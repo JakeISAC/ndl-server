@@ -18,7 +18,6 @@ class FaceDetection:
         self._authorized_people = DatabaseOperations().get_all()
         self._draw = Drawing()
 
-
     def start(self):
         while self._video_capture.isOpened():
             ret, frame = self._video_capture.read()
