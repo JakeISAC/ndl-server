@@ -9,7 +9,7 @@ class EncodeFaces:
         self._model = "hog"
         self._paths = Endpoints()
 
-    def encode_face_file(self):
+    def generate_encodings_from_file(self):
         encodings = []
 
         if os.path.isdir(self._path):
