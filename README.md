@@ -32,7 +32,9 @@
    - password: cassandra
 6. After comppleting these steps open a `console` and execute provided commands. 
 
-
+**Cqlsh**
+1. Open Terminal 
+2. Execute `docker exec `
 ### Python 
 ```
 pip install dlib face-recognition numpy Pillow scylla-driver pickle
