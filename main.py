@@ -1,4 +1,4 @@
-from face_detection import FaceDetection
+from core.face_detection import FaceDetection
 
 if __name__ == '__main__':
     # new_encode = EncodeFaces("C:\\Users\\jakub\\PycharmProjects\\ndl\\authorized_faces\\images\\masha")
