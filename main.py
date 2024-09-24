@@ -11,16 +11,16 @@ from flask import Flask, request
 from flask_socketio import SocketIO, emit
 
 if __name__ == '__main__':
-    # new_encode = EncodeFaces("C:\\Users\\jakub\\PycharmProjects\\ndl\\authorized_faces\\images\\mikhail")
+    # new_encode = EncodeFaces("C:\\Users\\jakub\\PycharmProjects\\ndl\\authorized_faces\\images\\anastasija")
     # encode = new_encode.generate_encodings_from_file()
-    # person = Person(id=uuid.uuid4(), name="Mikhail Ushakov",
-    #                 images_path="C:\\Users\\jakub\\PycharmProjects\\ndl\\authorized_faces\\images\\mikhail",
+    # person = Person(id=uuid.uuid4(), name="Anastasija Ananjeva",
+    #                 images_path="C:\\Users\\jakub\\PycharmProjects\\ndl\\authorized_faces\\images\\anastasija",
     #                 authorization=AuthorizationStatus.AUTHORIZED, face_encodings=encode)
     # person.add(DatabaseOperations())
     # print(encode)
 
-    api = API()
-    api.run()
-
+    # api = API()
+    # api.run()
+    #
     face_detection = FaceDetection()
     face_detection.start()
