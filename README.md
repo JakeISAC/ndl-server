@@ -40,13 +40,35 @@
 4. Wait for it to connect. 
 5. Execute provided commands. 
 ### Python 
+
+---
+**Warning**: 
+
+*Before proceeding with this section please check instructions below on how to install `uv` package manager. 
+The instructions are included at the bottom of the page.*
+
+---
+
+1. Set up a virtual environment:
+
 ```
-pip install dlib face-recognition numpy Pillow scylla-driver pickle
+uv venv --python 3.11.9
 ```
+
+2. Install the required dependencies:
+```
+uv sync
+```
+*All the packages are already provided in the .toml file* 
 
 **!Please make sure that you are installing the packages in the correct python enviroment!**
 
 *Note: `dlib` requires CMake.*
+
+---
+
+#### Install `uv` package manager
+[Link to the GitHub repository](https://github.com/astral-sh/uv)
 
 #### Install CMake
 [Link to CMake website](https://cmake.org)
