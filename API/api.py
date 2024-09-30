@@ -15,18 +15,24 @@ class API:
         # routes and event handlers
         self._app.add_url_rule('/', 'index', index)
         self._socketio.on_event('connect', self.handle_connect)
-        self._socketio.on_event('message', self.handle_message)
+        self._socketio.on_event('logs', self.pico_logs)
+
+        # secure connection
+        self._secure = False
 
     def handle_connect(self):
         print("Client Connected")
         self._socketio.emit('response', {'data': "Connected to the server"})
 
-    def handle_message(self, msg):
-        print("Received message:", msg)
+    def pico_logs(self, event):
+        print("Received message:", event)
         self._socketio.emit('response', {'data': "Message received"})
 
     def send_message(self, event, message):
-        self._socketio.emit(event, {'data': message})
+        if self._secure:
+            self._socketio.emit(event, {'data': message})
+        else:
+            self._socketio.emit('error', {'data': 'You are not authorized.'})
 
     def run(self):
         socketio_thread = threading.Thread(target=lambda: self._socketio.run(

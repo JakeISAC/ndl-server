@@ -2,6 +2,8 @@ import uuid
 
 from API.api import API
 from core.face_detection import FaceDetection
+from security.aes import AESecurity
+from security.dh import generate_keys, get_public_key
 from database.db_operations import DatabaseOperations
 from domains.people import Person
 from face_recognition_util.encode_faces import EncodeFaces
@@ -22,5 +24,15 @@ if __name__ == '__main__':
     # api = API()
     # api.run()
     #
-    face_detection = FaceDetection()
-    face_detection.start()
+    # face_detection = FaceDetection()
+    # face_detection.start()
+    # generate_keys()
+
+    # here I use mine to just verify that it works
+    peer_public_key = get_public_key()
+    aes = AESecurity(peer_public_key)
+    text = "My name is Jakub. HAHHAHAHAHA"
+    cipher, tag, nonce = aes.encrypt(text)
+    print(f"{cipher}")
+    print(f"{aes.decrypt(cipher, tag, nonce)}")
+

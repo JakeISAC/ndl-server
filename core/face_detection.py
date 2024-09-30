@@ -7,6 +7,7 @@ from face_recognition_util.compare_faces import CompareFaces
 from database.db_operations import DatabaseOperations
 from face_recognition_util.draw_face import Drawing
 from util.program_codes import AuthorizationStatus
+from security.security import Security
 
 
 class FaceDetection:
@@ -17,6 +18,7 @@ class FaceDetection:
         self._threshold = 0.9
         self._authorized_people = DatabaseOperations().get_all()
         self._draw = Drawing()
+        self._security = Security()
 
     def start(self):
         while self._video_capture.isOpened():
@@ -36,7 +38,9 @@ class FaceDetection:
                     for person in self._authorized_people:
                         compare = CompareFaces(person.face_encodings, face_encoding)
                         if self._assume_match(compare.compare_faces()):
-                            self._action_based_on_authorization(person.authorization, draw, face_location, person.name)
+                            # TODO: Fully implement this in the Security module
+                            self._security.action_based_on_authorization(person.authorization, draw,
+                                                                         face_location, person.name)
                             face_detected = True
                             break
                     if not face_detected:
@@ -59,15 +63,3 @@ class FaceDetection:
             if x:
                 true_occurrences += 1
         return (true_occurrences / array_len) >= self._threshold
-
-    def _action_based_on_authorization(self, person_authorization: AuthorizationStatus, draw, face_location,
-                                       person_name):
-        match person_authorization:
-            case AuthorizationStatus.AUTHORIZED:
-                self._draw.draw_face_box(draw, face_location, person_name, "green")
-            case AuthorizationStatus.PENDING:
-                self._draw.draw_face_box(draw, face_location, person_name, "yellow")
-            case AuthorizationStatus.NOT_AUTHORIZED:
-                self._draw.draw_face_box(draw, face_location, person_name, "blue")
-            case _:
-                self._draw.draw_face_box(draw, face_location, "ACTION UNKNOWN", "black")
