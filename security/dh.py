@@ -2,6 +2,12 @@ from Crypto.Hash import SHA256
 from Crypto.PublicKey import ECC
 from util.endpoints import Endpoints
 
+######################################################################################################
+#                                      **Deprecated**                                                #
+#                                                                                                    #
+#             (Incompatibility with existing Pico libraries the DHH ECC had to be removed.)          #
+######################################################################################################
+
 
 def generate_keys():
     endpoints = Endpoints()
