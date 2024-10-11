@@ -7,6 +7,11 @@ class AuthorizationStatus(Enum):
     NOT_AUTHORIZED = 2
 
 
+class AesMode(Enum):
+    USER = 0
+    PICO = 1
+
+
 class PicoEvents(Enum):
     OPEN_LOCK = 0
     CLOSE_LOCK = 1

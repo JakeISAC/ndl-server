@@ -14,7 +14,8 @@ class DatabaseOperations:
         self._session.set_keyspace(self._endpoints.KEYSPACE)
 
     def upload_to_db(self, person: object):
-        query_str = f"INSERT INTO {self._endpoints.USER_TABLE} (id, authorization_status, name, path_to_images, face_encodings) VALUES (?, ?, ?, ?, ?)"
+        query_str = (f"INSERT INTO {self._endpoints.USER_TABLE} (id, authorization_status, name, path_to_images, face_encodings) "
+                     f"VALUES (?, ?, ?, ?, ?)")
         query = self._session.prepare(query_str)
         encoded_face_encodings = pickle.dumps(person.face_encodings)
         self._session.execute(query, [person.id, person.authorization.value, person.name, person.images_path,
