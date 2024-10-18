@@ -9,3 +9,6 @@ class Endpoints:
     # security
     PRIVATE_KEY_PATH = "./dh-keys/local/private_key.pem"
     PUBLIC_KEY_PATH = "./dh-keys/local/public_key.pem"
+    # MQTT
+    MQTT_USERNAME = "pico"
+    MQTT_PASSWORD = "ndl@group3"

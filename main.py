@@ -1,5 +1,6 @@
 import uuid
 
+from API.mqtt import MQTTServer
 from API.pico_api import API
 from core.face_detection import FaceDetection
 from security.aes import AESecurity
@@ -21,9 +22,9 @@ if __name__ == '__main__':
     # person.add(DatabaseOperations())
     # print(encode)
 
-    # api = API()
-    # api.run()
-    #
+    mqtt = MQTTServer()
+    mqtt.run()
+
     face_detection = FaceDetection()
     face_detection.start()
 

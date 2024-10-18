@@ -13,7 +13,7 @@ from security.security import Security
 
 class FaceDetection:
     def __init__(self):
-        # self._video_capture = cv2.VideoCapture(0)
+        self._cam = Picamera2()
         self._video_box_name = "Face Detection"
         self._model = "hog"
         self._threshold = 0.9
@@ -22,10 +22,9 @@ class FaceDetection:
         self._security = Security()
 
     def start(self):
-        cam = Picamera2()
-        cam.start()
+        self._cam.start()
         while True:
-            pil_image = cam.capture_image()
+            pil_image = self._cam.capture_image()
             rgb_image = pil_image.convert('RGB')
             frame = np.array(rgb_image)
             if not frame.any():
