@@ -13,26 +13,25 @@ from flask import Flask, request
 from flask_socketio import SocketIO, emit
 
 if __name__ == '__main__':
-    # new_encode = EncodeFaces("C:\\Users\\jakub\\PycharmProjects\\ndl\\authorized_faces\\images\\anastasija")
+    # new_encode = EncodeFaces("/home/ndl/ndl/authorized_faces/images/masha")
     # encode = new_encode.generate_encodings_from_file()
-    # person = Person(id=uuid.uuid4(), name="Anastasija Ananjeva",
-    #                 images_path="C:\\Users\\jakub\\PycharmProjects\\ndl\\authorized_faces\\images\\anastasija",
+    # person = Person(id=uuid.uuid4(), name="Masha Ushakova",
+    #                 images_path="/home/ndl/ndl/authorized_faces/images/masha",
     #                 authorization=AuthorizationStatus.AUTHORIZED, face_encodings=encode)
     # person.add(DatabaseOperations())
     # print(encode)
 
-    api = API()
-    api.run()
+    # api = API()
+    # api.run()
     #
-    # face_detection = FaceDetection()
-    # face_detection.start()
-    # generate_keys()
+    face_detection = FaceDetection()
+    face_detection.start()
 
     # here I use mine to just verify that it works
     # peer_public_key = get_public_key()
-    aes = AESecurity(AesMode.PICO)
-    text = b"My name is Jakub. HAHHAHAHAHA"
-    cipher, tag, nonce = aes.encrypt(text)
-    print(f"{cipher}")
-    print(f"{aes.decrypt(cipher, tag, nonce)}")
+    # aes = AESecurity(AesMode.PICO)
+    # text = b"My name is Jakub. HAHHAHAHAHA"
+    # cipher, tag, nonce = aes.encrypt(text)
+    # print(f"{cipher}")
+    # print(f"{aes.decrypt(cipher, tag, nonce)}")
 

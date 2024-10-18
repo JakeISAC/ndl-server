@@ -2,6 +2,7 @@ import cv2
 import face_recognition
 import numpy as np
 from PIL import ImageDraw, Image
+from picamera2 import Picamera2, Preview
 
 from face_recognition_util.compare_faces import CompareFaces
 from database.db_operations import DatabaseOperations
@@ -12,7 +13,7 @@ from security.security import Security
 
 class FaceDetection:
     def __init__(self):
-        self._video_capture = cv2.VideoCapture(0)
+        # self._video_capture = cv2.VideoCapture(0)
         self._video_box_name = "Face Detection"
         self._model = "hog"
         self._threshold = 0.9
@@ -21,10 +22,14 @@ class FaceDetection:
         self._security = Security()
 
     def start(self):
-        while self._video_capture.isOpened():
-            ret, frame = self._video_capture.read()
-            if not ret:
-                break
+        cam = Picamera2()
+        cam.start()
+        while True:
+            pil_image = cam.capture_image()
+            rgb_image = pil_image.convert('RGB')
+            frame = np.array(rgb_image)
+            if not frame.any():
+                continue
 
             face_locations = face_recognition.face_locations(frame, model=self._model)
             if face_locations:
@@ -53,7 +58,6 @@ class FaceDetection:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        self._video_capture.release()
         cv2.destroyAllWindows()
 
     def _assume_match(self, array: list[bool]):
