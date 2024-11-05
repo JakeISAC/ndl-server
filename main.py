@@ -1,7 +1,6 @@
 import uuid
 
 from API.mqtt import MQTTServer
-from API.pico_api import API
 from core.face_detection import FaceDetection
 from security.aes import AESecurity
 from security.dh import generate_keys, get_public_key
@@ -25,7 +24,7 @@ if __name__ == '__main__':
     mqtt = MQTTServer()
     mqtt.run()
 
-    face_detection = FaceDetection()
+    face_detection = FaceDetection(mqtt)
     face_detection.start()
 
     # here I use mine to just verify that it works

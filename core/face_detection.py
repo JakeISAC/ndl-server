@@ -4,15 +4,17 @@ import numpy as np
 from PIL import ImageDraw, Image
 from picamera2 import Picamera2, Preview
 
+from API.mqtt import MQTTServer
 from face_recognition_util.compare_faces import CompareFaces
 from database.db_operations import DatabaseOperations
 from face_recognition_util.draw_face import Drawing
 from util.program_codes import AuthorizationStatus
+from util.program_codes import PicoEvents
 from security.security import Security
 
 
 class FaceDetection:
-    def __init__(self):
+    def __init__(self, mqtt: MQTTServer):
         self._cam = Picamera2()
         self._video_box_name = "Face Detection"
         self._model = "hog"
@@ -20,6 +22,7 @@ class FaceDetection:
         self._authorized_people = DatabaseOperations().get_all()
         self._draw = Drawing()
         self._security = Security()
+        self._mqtt = mqtt
 
     def start(self):
         self._cam.start()
@@ -32,8 +35,9 @@ class FaceDetection:
 
             face_locations = face_recognition.face_locations(frame, model=self._model)
             if face_locations:
-                face_encodings = face_recognition.face_encodings(frame, face_locations)
+                detected_people_authorization = []
 
+                face_encodings = face_recognition.face_encodings(frame, face_locations)
                 image = Image.fromarray(frame)
                 draw = ImageDraw.Draw(image)
 
@@ -45,11 +49,13 @@ class FaceDetection:
                             # TODO: Fully implement this in the Security module
                             self._security.action_based_on_authorization(person.authorization, draw,
                                                                          face_location, person.name)
+                            detected_people_authorization.append(person.authorization)
                             face_detected = True
                             break
                     if not face_detected:
                         self._draw.draw_face_box(draw, face_location, "unknown person", "red")
 
+                self._final_decision(detected_people_authorization)
                 cv2.imshow(self._video_box_name, np.array(image))
             else:
                 cv2.imshow(self._video_box_name, frame)
@@ -66,3 +72,13 @@ class FaceDetection:
             if x:
                 true_occurrences += 1
         return (true_occurrences / array_len) >= self._threshold
+
+    def _final_decision(self, detected_people_authorization):
+        authorized = False
+        for i in detected_people_authorization:
+            if i == AuthorizationStatus.AUTHORIZED:
+                self._mqtt.send_message(str(PicoEvents.OPEN_LOCK), "magnetic_lock")
+                authorized = True
+                break
+        if not authorized:
+            self._mqtt.send_message(str(PicoEvents.CLOSE_LOCK), "magnetic_lock")

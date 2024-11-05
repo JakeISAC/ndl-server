@@ -11,7 +11,6 @@ class Security:
         match person_authorization:
             case AuthorizationStatus.AUTHORIZED:
                 self._draw.draw_face_box(draw, face_location, person_name, "green")
-
             case AuthorizationStatus.TEMPORARY:
                 self._draw.draw_face_box(draw, face_location, person_name, "yellow")
             case AuthorizationStatus.NOT_AUTHORIZED:

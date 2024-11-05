@@ -18,13 +18,28 @@ class MQTTServer:
         # set up MQTT client
         self._client = mqtt.Client("Server", protocol=mqtt.MQTTv5)
         self._client.username_pw_set(self._endpoints.MQTT_USERNAME, self._endpoints.MQTT_PASSWORD)
+        self._client.on_message = self._on_message
         self._connect()
+        # subscribe to the topic I need to listen to
+        self._client.subscribe("logs")
+        self._client.subscribe("magnetic_lock")
 
     def _connect(self):
         self._client.connect(self._broker, self._port)
 
     def _mqtt_loop(self):
         self._client.loop_start()
+
+    def _on_message(self, client, userdata, msg):
+        match msg.topic:
+            case "":
+                payload = msg.payload.decode()
+                print(payload)
+            case "magnetic_lock":
+                payload = msg.payload.decode()
+                print(payload)
+            case _:
+                pass
 
     def send_message(self, message, topic=None):
         if not topic:
@@ -43,7 +58,7 @@ class MQTTServer:
         self._mqtt_loop()
         try:
             while True:
-                self.send_message("Hello from the publisher")
+                self.send_message("Logs")
                 time.sleep(1)
         except KeyboardInterrupt:
             print("Publisher stopped")
