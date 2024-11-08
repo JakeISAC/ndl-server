@@ -14,7 +14,7 @@ class MQTTServer:
         # broker here is the mosquito broker running on the pi
         self._broker = "localhost"
         self._port = 1883
-        self._topic = "logs"
+        self._topic = "weird-stuff"
         # set up MQTT client
         self._client = mqtt.Client("Server", protocol=mqtt.MQTTv5)
         self._client.username_pw_set(self._endpoints.MQTT_USERNAME, self._endpoints.MQTT_PASSWORD)
@@ -24,13 +24,8 @@ class MQTTServer:
         self._client.subscribe("logs")
         self._client.subscribe("magnetic_lock")
 
-    def _connect(self):
-        self._client.connect(self._broker, self._port)
-
-    def _mqtt_loop(self):
-        self._client.loop_start()
-
-    def _on_message(self, client, userdata, msg):
+    @classmethod
+    def _on_message(cls, client, userdata, msg):
         match msg.topic:
             case "":
                 payload = msg.payload.decode()
@@ -40,6 +35,12 @@ class MQTTServer:
                 print(payload)
             case _:
                 pass
+
+    def _connect(self):
+        self._client.connect(self._broker, self._port)
+
+    def _mqtt_loop(self):
+        self._client.loop_start()
 
     def send_message(self, message, topic=None):
         if not topic:
