@@ -2,7 +2,7 @@ import uuid
 
 from API.mqtt import MQTTServer
 from core.face_detection import FaceDetection
-from database.db_operations import DatabaseOperations
+from database.faces_db import DbOperationsPeople
 from domains.people import Person
 from face_recognition_util.encode_faces import EncodeFaces
 from util.program_codes import AuthorizationStatus
@@ -21,6 +21,6 @@ if __name__ == '__main__':
     mqtt = MQTTServer()
     mqtt.run()
 
-    face_detection = FaceDetection(mqtt)
-    face_detection.start()
+    # face_detection = FaceDetection(mqtt)
+    # face_detection.start()
 

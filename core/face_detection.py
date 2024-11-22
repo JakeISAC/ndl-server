@@ -6,7 +6,7 @@ from picamera2 import Picamera2, Preview
 
 from API.mqtt import MQTTServer
 from face_recognition_util.compare_faces import CompareFaces
-from database.db_operations import DatabaseOperations
+from database.faces_db import DbOperationsPeople
 from face_recognition_util.draw_face import Drawing
 from security.security import Security
 
@@ -17,7 +17,7 @@ class FaceDetection:
         self._video_box_name = "Face Detection"
         self._model = "hog"
         self._threshold = 0.9
-        self._authorized_people = DatabaseOperations().get_all()
+        self._authorized_people = DbOperationsPeople().get_all()
         self._draw = Drawing()
         self._security = Security()
         self._mqtt = mqtt
