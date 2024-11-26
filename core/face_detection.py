@@ -2,9 +2,9 @@ import cv2
 import face_recognition
 import numpy as np
 from PIL import ImageDraw, Image
-from picamera2 import Picamera2, Preview
+from picamera2 import Picamera2
 
-from API.mqtt import MQTTServer
+from mqtt.mqtt import MQTTServer
 from face_recognition_util.compare_faces import CompareFaces
 from database.faces_db import DbOperationsPeople
 from face_recognition_util.draw_face import Drawing

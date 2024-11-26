@@ -1,11 +1,4 @@
-import uuid
-
-from API.mqtt import MQTTServer
-from core.face_detection import FaceDetection
-from database.faces_db import DbOperationsPeople
-from domains.people import Person
-from face_recognition_util.encode_faces import EncodeFaces
-from util.program_codes import AuthorizationStatus
+from mqtt.mqtt import MQTTServer
 
 # "%Y-%m-%d %H:%M:%S"
 

@@ -1,12 +1,10 @@
 from lib2to3.pgen2.tokenize import endprogs
 
 import paho.mqtt.client as mqtt
-import time
-import threading
 
 from API.user_api import UserApi
 from util.endpoints import Endpoints
-from util.program_codes import UserLoginResponse as user_codes
+from util.program_codes import UserLoginResponse as UserCodes
 
 
 class MQTTServer:
@@ -22,9 +20,6 @@ class MQTTServer:
         self._client.username_pw_set(self._endpoints.MQTT_USERNAME, self._endpoints.MQTT_PASSWORD)
         self._client.on_message = self._on_message
         self._connect()
-        # subscribe to the topic I need to listen to
-        self._client.subscribe("login")
-        self._client.subscribe("magnetic_lock")
         # endpoints to user API
         self._login = "login"
         self._register = "register"
@@ -34,6 +29,12 @@ class MQTTServer:
         self._change_password = "change_password"
         self._all_members = "all_members"
         self._change_member = "change_member_data"
+        # endpoint controller
+        self._magnetic_lock = "magnetic_lock" # publisher
+        self._logs = "logs" # subscriber
+        # subscribe to the topic I need to listen to
+        self._client.subscribe(self._login)
+        self._client.subscribe(self._logs)
 
     def _on_message(self, client, userdata, msg):
         match msg.topic:
@@ -41,11 +42,9 @@ class MQTTServer:
                 payload = msg.payload.decode()
                 print(payload)
                 if self._user_api.login(str(payload)):
-                    print("Hi")
-                    self.send_message(user_codes.OK, "login_response")
+                    self.send_message(UserCodes.OK, "login_response")
                 else:
-                    print(":(")
-                    self.send_message(user_codes.FAILED, "login_response")
+                    self.send_message(UserCodes.FAILED, "login_response")
                 print(payload)
             case "magnetic_lock":
                 payload = msg.payload.decode()
@@ -67,23 +66,8 @@ class MQTTServer:
             topic = self._topic
         self._client.publish(str(topic), str(message))
 
-    # subscriber; topic: logs
-    def logs_dump(self):
-        pass
-
-    # subscriber; topic: lock_status
-    def lock_status(self):
-        pass
-
-    def _run(self):
-        self._mqtt_loop()
-        while True:
-            pass
-
     def stop_mqtt(self):
-        self._client.loop_stop()
         self._client.disconnect()
 
     def run(self):
-        server_thread = threading.Thread(target=self._run)
-        server_thread.start()
+        self._mqtt_loop()
