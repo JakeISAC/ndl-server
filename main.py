@@ -1,3 +1,4 @@
+from core.face_detection import FaceDetection
 from mqtt.mqtt import MQTTServer
 
 # "%Y-%m-%d %H:%M:%S"
@@ -14,6 +15,6 @@ if __name__ == '__main__':
     mqtt = MQTTServer()
     mqtt.run()
 
-    # face_detection = FaceDetection(mqtt)
-    # face_detection.start()
+    face_detection = FaceDetection(mqtt)
+    face_detection.start()
 

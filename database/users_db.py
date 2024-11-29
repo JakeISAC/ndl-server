@@ -1,5 +1,4 @@
 from cassandra.cluster import Cluster
-
 from util.endpoints import Endpoints
 
 

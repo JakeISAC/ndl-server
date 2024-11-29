@@ -30,6 +30,6 @@ class PicoEvents(Enum):
     def __str__(self):
         match self:
             case self.OPEN_LOCK:
-                return "OPEN_LOCK"
+                return "open"
             case self.CLOSE_LOCK:
-                return "CLOSE_LOCK"
+                return "close"
