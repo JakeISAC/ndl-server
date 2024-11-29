@@ -40,7 +40,7 @@ class FaceDetection:
                 draw = ImageDraw.Draw(image)
 
                 for face_location, face_encoding in zip(face_locations, face_encodings):
-                    face_detected = False
+                    face_recognised = False
                     for person in self._authorized_people:
                         compare = CompareFaces(person.face_encodings, face_encoding)
                         if self._assume_match(compare.compare_faces()):
@@ -48,9 +48,9 @@ class FaceDetection:
                             self._security.drawing_based_on_authorization(person.authorization, draw,
                                                                           face_location, person.name)
                             detected_people_authorization.append(person)
-                            face_detected = True
+                            face_recognised = True
                             break
-                    if not face_detected:
+                    if not face_recognised:
                         self._draw.draw_face_box(draw, face_location, "unknown person", "red")
 
                 # send the mqtt message based on person authorization

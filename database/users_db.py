@@ -1,6 +1,4 @@
 from cassandra.cluster import Cluster
-from setuptools.package_index import user_agent
-
 from util.endpoints import Endpoints
 
 
