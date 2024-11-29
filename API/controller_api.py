@@ -1,7 +1,10 @@
+from loguru import logger
+
 
 class ControllerApi:
-    def __init__(self, logger):
-        self._logger = logger
+    def __init__(self):
+        pass
 
-    def process_logs(self):
+    @staticmethod
+    def process_logs(log_string: str):
         pass

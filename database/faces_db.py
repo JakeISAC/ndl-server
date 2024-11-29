@@ -72,8 +72,6 @@ class DbOperationsPeople:
         except Exception as e:
             raise e
 
-
-
     def get_all(self):
         people = []
         query = f"SELECT * FROM {self._endpoints.KEYSPACE_PEOPLE}.{self._endpoints.PEOPLE_TABLE}"
