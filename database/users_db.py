@@ -9,7 +9,6 @@ class DbOperationsUsers:
         self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_USERS)
 
-
     def upload_to_db(self, user: object):
         query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, pssword) VALUES (?, ?) IF NOT EXISTS"
         query = self._session.prepare(query_str)
@@ -40,9 +39,6 @@ class DbOperationsUsers:
 
         except Exception:
             return None
-
-
-
 
     @classmethod
     def _row_to_user(cls, row):
