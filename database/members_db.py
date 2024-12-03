@@ -7,7 +7,7 @@ from datetime import datetime
 from util.program_codes import AuthorizationStatus
 
 
-class DbOperationsPeople:
+class DbOperationsMembers:
     def __init__(self):
         self._cluster = Cluster()
         self._session = self._cluster.connect()
@@ -15,12 +15,16 @@ class DbOperationsPeople:
         self._session.set_keyspace(self._endpoints.KEYSPACE_PEOPLE)
 
     def upload_to_db(self, person: object):
-        query_str = (f"INSERT INTO {self._endpoints.PEOPLE_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
-                     f"VALUES (?, ?, ?, ?, ?, ?)")
-        query = self._session.prepare(query_str)
-        encoded_face_encodings = pickle.dumps(person.face_encodings)
-        self._session.execute(query, [person.id, person.authorization.value, person.access_remaining_date_time,
-                                      person.name, person.images_path, encoded_face_encodings])
+        try:
+            query_str = (f"INSERT INTO {self._endpoints.PEOPLE_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
+                         f"VALUES (?, ?, ?, ?, ?, ?)")
+            query = self._session.prepare(query_str)
+            encoded_face_encodings = pickle.dumps(person.face_encodings)
+            self._session.execute(query, [person.id, person.authorization.value, person.access_remaining_date_time,
+                                          person.name, person.images_path, encoded_face_encodings])
+            return True
+        except Exception as e:
+            return False
 
     """
         TODO: rewrite the function to be more interactive and allow search over: name, id, authorization.
@@ -60,7 +64,7 @@ class DbOperationsPeople:
         try:
             found = []
             if authorization:
-                query = f"SELECT * FROM {self._endpoints.KEYSPACE_PEOPLE}.{self._endpoints.PEOPLE_TABLE} WHERE authorization_status=? ALLOW FILTERING"
+                query = f"SELECT * FROM {self._endpoints.PEOPLE_TABLE} WHERE authorization_status=? ALLOW FILTERING"
                 prepared_query = self._session.prepare(query)
                 for row in self._session.execute(prepared_query, [authorization]):
                     found.append(self._row_to_person(row))
@@ -70,9 +74,7 @@ class DbOperationsPeople:
             return found
 
         except Exception as e:
-            raise e
-
-
+            return False
 
     def get_all(self):
         people = []

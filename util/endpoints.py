@@ -10,6 +10,9 @@ class Endpoints:
     # User Database
     KEYSPACE_USERS = "users"
     USERS_TABLE = "users"
+    # Session Database
+    KEYSPACE_SESSION = "session"
+    SESSION_TABLE = "tokens"
     # security
     PRIVATE_KEY_PATH = "./dh-keys/local/private_key.pem"
     PUBLIC_KEY_PATH = "./dh-keys/local/public_key.pem"

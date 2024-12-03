@@ -15,6 +15,9 @@ if __name__ == '__main__':
     mqtt = MQTTServer()
     mqtt.run()
 
-    face_detection = FaceDetection(mqtt)
-    face_detection.start()
+    while True:
+        pass
+
+    # face_detection = FaceDetection(mqtt)
+    # face_detection.start()
 

@@ -1,7 +1,6 @@
 from cassandra.cluster import Cluster
 from util.endpoints import Endpoints
 
-
 class DbOperationsUsers:
     def __init__(self):
         self._cluster = Cluster()
@@ -11,17 +10,24 @@ class DbOperationsUsers:
 
 
     def upload_to_db(self, user: object):
-        query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, pssword) VALUES (?, ?) IF NOT EXISTS"
-        query = self._session.prepare(query_str)
-        self._session.execute(query, [user.username, user.password])
+        try:
+            query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, pssword) VALUES (?, ?) IF NOT EXISTS"
+            query = self._session.prepare(query_str)
+            self._session.execute(query, [user.username, user.password])
+            return True
+        except Exception as e:
+            return False
 
     def get_all(self):
-        people = []
-        query = f"SELECT * FROM {self._endpoints.USERS_TABLE}"
-        prepared_query = self._session.prepare(query)
-        for row in self._session.execute(prepared_query):
-            people.append(self._row_to_user(row))
-        return people
+        try:
+            people = []
+            query = f"SELECT * FROM {self._endpoints.USERS_TABLE}"
+            prepared_query = self._session.prepare(query)
+            for row in self._session.execute(prepared_query):
+                people.append(self._row_to_user(row))
+            return people
+        except Exception as e:
+            return None
 
     def check_user(self, username, password):
         try:
@@ -40,9 +46,6 @@ class DbOperationsUsers:
 
         except Exception:
             return None
-
-
-
 
     @classmethod
     def _row_to_user(cls, row):

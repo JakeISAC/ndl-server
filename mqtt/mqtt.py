@@ -1,6 +1,8 @@
+import json
+
 import paho.mqtt.client as mqtt
 from threading import Thread
-from API.user_api import UserApi
+from api.user_api import UserApi
 from util.endpoints import Endpoints
 from util.program_codes import UserLoginResponse as UserCodes
 
@@ -18,7 +20,7 @@ class MQTTServer:
         self._client.username_pw_set(self._endpoints.MQTT_USERNAME, self._endpoints.MQTT_PASSWORD)
         self._client.on_message = self._on_message
         self._connect()
-        # endpoints to user API
+        # endpoints to user api
         self._login = "login_ask"
         self._register = "register"
         self._add_member = "add_member"
@@ -34,20 +36,31 @@ class MQTTServer:
         # subscribe to the topic I need to listen to
         self._client.subscribe(self._login)
         self._client.subscribe(self._logs)
+        self._client.subscribe(self._register)
 
     def _on_message(self, client, userdata, msg):
         match msg.topic:
-            case "logs":
+            case self._logs:
                 payload = msg.payload.decode()
                 print(payload)
-            case "login_ask":
+            case self._login:
                 payload = msg.payload.decode()
                 print(payload)
-                if self._user_api.login(str(payload)):
-                    self.send_message(UserCodes.OK, "login_response")
+                success, token = self._user_api.login(str(payload))
+                response = {'code': str(UserCodes.OK), 'session_token': None}
+                if success:
+                    response['session_token'] = token
+                    self.send_message(json.dumps(response), "login_response")
                 else:
-                    self.send_message(UserCodes.FAILED, "login_response")
-            case "magnetic_lock":
+                    self.send_message(json.dumps(response), "login_response")
+            case self._register:
+                payload = msg.payload.decode()
+                print(payload)
+                if self._user_api.register(str(payload)):
+                    self.send_message(str(UserCodes.OK), "register_response")
+                else:
+                    self.send_message(str(UserCodes.FAILED), "register_response")
+            case self._magnetic_lock:
                 payload = msg.payload.decode()
                 print(payload)
             case _:

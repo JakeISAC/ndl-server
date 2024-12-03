@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from database import faces_db
+from database.members_db import DbOperationsMembers
 from util.program_codes import AuthorizationStatus
 
 
@@ -15,5 +15,5 @@ class Person:
     access_remaining_date_time: str
     face_encodings: bytes.hex
 
-    def add(self, db: faces_db.DbOperationsPeople):
+    def add(self, db: DbOperationsMembers):
         db.upload_to_db(self)
