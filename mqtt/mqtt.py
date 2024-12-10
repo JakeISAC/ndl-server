@@ -3,14 +3,19 @@ import json
 import paho.mqtt.client as mqtt
 from threading import Thread
 from api.user_api import UserApi
+from api.members_api import MembersApi
+from domains.member import Member
 from util.endpoints import Endpoints
 from util.program_codes import UserLoginResponse as UserCodes
-
+from util.program_codes import AddMemberResponse as MemberResponse
+from database.session_db import DbOperationsSession
 
 class MQTTServer:
     def __init__(self):
         self._endpoints = Endpoints()
         self._user_api = UserApi()
+        self._members_api = MembersApi()
+        self._session_db = DbOperationsSession()
         # MQTT server config
         # broker here is the mosquito broker running on the pi
         self._broker = "localhost"
@@ -37,6 +42,7 @@ class MQTTServer:
         self._client.subscribe(self._login)
         self._client.subscribe(self._logs)
         self._client.subscribe(self._register)
+        self._client.subscribe(self._add_member)
 
     def _on_message(self, client, userdata, msg):
         match msg.topic:
@@ -63,6 +69,17 @@ class MQTTServer:
             case self._magnetic_lock:
                 payload = msg.payload.decode()
                 print(payload)
+            case self._add_member:
+                payload = msg.payload.decode()
+                payload_parsed = json.loads(payload)
+                member = payload_parsed['value']
+                session_token = payload_parsed['session_token']
+                if self._session_db.check_token(session_token):
+                    member_extracted = Member.extract_member(member)
+                    self._members_api.add_member(member_extracted)
+                    self.send_message(str(MemberResponse.OK), "add_member_response")
+                else:
+                    self.send_message(str(MemberResponse.FAILED), "add_member_response")
             case _:
                 pass
 

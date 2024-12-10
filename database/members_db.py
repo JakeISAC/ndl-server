@@ -1,9 +1,11 @@
+import uuid
+
 from cassandra.cluster import Cluster
 
 from util.endpoints import Endpoints
 import pickle
 from datetime import datetime
-
+from domains.member import Member
 from util.program_codes import AuthorizationStatus
 
 
@@ -14,17 +16,31 @@ class DbOperationsMembers:
         self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_PEOPLE)
 
-    def upload_to_db(self, person: object):
+    def upload_to_db(self, member: Member):
         try:
             query_str = (f"INSERT INTO {self._endpoints.PEOPLE_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
                          f"VALUES (?, ?, ?, ?, ?, ?)")
             query = self._session.prepare(query_str)
-            encoded_face_encodings = pickle.dumps(person.face_encodings)
-            self._session.execute(query, [person.id, person.authorization.value, person.access_remaining_date_time,
-                                          person.name, person.images_path, encoded_face_encodings])
+            encoded_face_encodings = pickle.dumps(member.face_encodings)
+            self._session.execute(query, [member.id, member.authorization.value, member.access_remaining_date_time,
+                                          member.name, member.images_path, encoded_face_encodings])
             return True
         except Exception as e:
             return False
+
+    def remove(self, id: uuid.UUID):
+        try:
+            query_str = f"DELETE FROM {self._endpoints.PEOPLE_TABLE} WHERE id = ? ALLOW FILTERING"
+            query = self._session.prepare(query_str)
+            self._session.execute(query, [id])
+            return True
+        except Exception as e:
+            return False
+
+
+    # def update_status(self, new_status: str):
+    #     try:
+    #         query_str = f"UPDATE {self._endpoints.PEOPLE_TABLE} SET authorization "
 
     """
         TODO: rewrite the function to be more interactive and allow search over: name, id, authorization.
@@ -86,13 +102,13 @@ class DbOperationsMembers:
 
     @classmethod
     def _row_to_person(cls, row):
-        from domains.people import Person
+        from domains.member import Member
 
         try:
             face_encodings = pickle.loads(row.face_encodings)
             auth_status = AuthorizationStatus(row.authorization_status)
 
-            return Person(id=row.id,
+            return Member(id=row.id,
                           name=row.name,
                           images_path=row.path_to_images,
                           authorization=auth_status,

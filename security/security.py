@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 
 from face_recognition_util.draw_face import Drawing
-from util.program_codes import AuthorizationStatus, PicoEvents
+from util.program_codes import AuthorizationStatus, ControllerEvents
 
 
 class Security:
@@ -24,7 +24,7 @@ class Security:
     @classmethod
     def lock_action_based_on_authorization(cls, detected_people, mqtt):
         if not detected_people:
-            mqtt.send_message(str(PicoEvents.CLOSE_LOCK), "magnetic_lock")
+            mqtt.send_message(str(ControllerEvents.CLOSE_LOCK), "magnetic_lock")
         authorized = False
         for person in detected_people:
             match person.authorization:
@@ -41,6 +41,6 @@ class Security:
                     pass
 
         if authorized:
-            mqtt.send_message(str(PicoEvents.OPEN_LOCK), "magnetic_lock")
+            mqtt.send_message(str(ControllerEvents.OPEN_LOCK), "magnetic_lock")
         else:
-            mqtt.send_message(str(PicoEvents.CLOSE_LOCK), "magnetic_lock")
+            mqtt.send_message(str(ControllerEvents.CLOSE_LOCK), "magnetic_lock")

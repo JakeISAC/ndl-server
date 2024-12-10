@@ -11,6 +11,17 @@ class UserLoginResponse(Enum):
             case self.FAILED:
                 return "FAILED"
 
+class AddMemberResponse(Enum):
+    OK = 0,
+    FAILED = 1
+
+    def __str__(self):
+        match self:
+            case self.OK:
+                return "OK"
+            case self.FAILED:
+                return "FAILED"
+
 
 class AuthorizationStatus(Enum):
     AUTHORIZED = 0
@@ -18,12 +29,7 @@ class AuthorizationStatus(Enum):
     NOT_AUTHORIZED = 2
 
 
-class AesMode(Enum):
-    USER = 0
-    PICO = 1
-
-
-class PicoEvents(Enum):
+class ControllerEvents(Enum):
     OPEN_LOCK = 0
     CLOSE_LOCK = 1
 
