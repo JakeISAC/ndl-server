@@ -21,10 +21,10 @@ class DbOperationsSession:
     def check_token(self, token) -> bool:
         try:
             result = []
-            query = f"SELECT COUNT(*) FROM {self._endpoints.SESSION_TABLE} WHERE token=?"
+            query = f"SELECT * FROM {self._endpoints.SESSION_TABLE} WHERE session_token=?"
             prepared_query = self._session.prepare(query)
             for row in self._session.execute(prepared_query, [token]):
-                result.append(row.password)
+                result.append(row.timestamp)
             if result:
                 return True
             return False

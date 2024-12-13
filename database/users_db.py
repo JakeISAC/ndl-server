@@ -1,4 +1,6 @@
 from cassandra.cluster import Cluster
+
+from domains.user import User
 from util.endpoints import Endpoints
 
 class DbOperationsUsers:
@@ -9,9 +11,9 @@ class DbOperationsUsers:
         self._session.set_keyspace(self._endpoints.KEYSPACE_USERS)
 
 
-    def upload_to_db(self, user: object):
+    def upload_to_db(self, user: User):
         try:
-            query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, pssword) VALUES (?, ?) IF NOT EXISTS"
+            query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, password) VALUES (?, ?) IF NOT EXISTS"
             query = self._session.prepare(query_str)
             self._session.execute(query, [user.username, user.password])
             return True
@@ -43,7 +45,6 @@ class DbOperationsUsers:
                     if passwd == password:
                         return True
             return False
-
         except Exception:
             return None
 

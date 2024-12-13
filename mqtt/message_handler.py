@@ -36,9 +36,10 @@ class MessageHandler:
             case self._login:
                 payload = msg.payload.decode()
                 print(payload)
-                success, token = self._user_api.login(str(payload))
-                response = {'code': str(UserCodes.OK), 'session_token': None}
-                if success:
+                token = self._user_api.login(str(payload))
+                response = {'code': str(UserCodes.FAILED), 'session_token': None}
+                if token:
+                    response['code'] = str(UserCodes.OK)
                     response['session_token'] = token
                     self._send_message(json.dumps(response), "login_response")
                 else:
@@ -46,8 +47,14 @@ class MessageHandler:
             case self._register:
                 payload = msg.payload.decode()
                 print(payload)
-                if self._user_api.register(str(payload)):
-                    self._send_message(str(UserCodes.OK), "register_response")
+                payload_parsed = json.loads(payload)
+                user = payload_parsed['value']
+                session_token = payload_parsed['session_token']
+                if self._session_db.check_token(session_token):
+                    if self._user_api.register(str(user)):
+                        self._send_message(str(UserCodes.OK), "register_response")
+                    else:
+                        self._send_message(str(UserCodes.FAILED), "register_response")
                 else:
                     self._send_message(str(UserCodes.FAILED), "register_response")
             case self._magnetic_lock:
