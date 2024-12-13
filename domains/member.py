@@ -39,3 +39,12 @@ class Member:
             access_remaining_date_time=data["access_remaining_date_time"] if data["access_remaining_date_time"] else None,
             face_encodings=None
         )
+
+    def to_json(self):
+        return {
+            "id": str(self.id),
+            "name": str(self.name),
+            "images_path": str(self.images_path),
+            "authorization": str(self.authorization),
+            "access_remaining": str(self.access_remaining_date_time)
+        }

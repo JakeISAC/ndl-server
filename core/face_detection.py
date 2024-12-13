@@ -45,8 +45,8 @@ class FaceDetection:
                         compare = CompareFaces(person.face_encodings, face_encoding)
                         if self._assume_match(compare.compare_faces()):
                             # TODO: Fully implement this in the Security module
-                            self._security.drawing_based_on_authorization(person.authorization, draw,
-                                                                          face_location, person.name)
+                            self._security.face_bounding_box_authorization(person.authorization, draw,
+                                                                           face_location, person.name)
                             detected_people_authorization.append(person)
                             face_recognised = True
                             break

@@ -5,8 +5,8 @@ from dataclasses import dataclass
 class Endpoints:
     AUTHORIZED_IMAGES_PATH = "./authorized_faces/images/"
     # People Database
-    KEYSPACE_PEOPLE = "face_recognition"
-    PEOPLE_TABLE = "people"
+    KEYSPACE_MEMBER = "face_recognition"
+    MEMBER_TABLE = "people"
     # User Database
     KEYSPACE_USERS = "users"
     USERS_TABLE = "users"

@@ -4,7 +4,6 @@ from cassandra.cluster import Cluster
 
 from util.endpoints import Endpoints
 import pickle
-from datetime import datetime
 from domains.member import Member
 from util.program_codes import AuthorizationStatus
 
@@ -14,11 +13,11 @@ class DbOperationsMembers:
         self._cluster = Cluster()
         self._session = self._cluster.connect()
         self._endpoints = Endpoints()
-        self._session.set_keyspace(self._endpoints.KEYSPACE_PEOPLE)
+        self._session.set_keyspace(self._endpoints.KEYSPACE_MEMBER)
 
     def upload_to_db(self, member: Member):
         try:
-            query_str = (f"INSERT INTO {self._endpoints.PEOPLE_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
+            query_str = (f"INSERT INTO {self._endpoints.MEMBER_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
                          f"VALUES (?, ?, ?, ?, ?, ?)")
             query = self._session.prepare(query_str)
             encoded_face_encodings = pickle.dumps(member.face_encodings)
@@ -26,88 +25,74 @@ class DbOperationsMembers:
                                           member.name, member.images_path, encoded_face_encodings])
             return True
         except Exception as e:
-            return False
+            return None
 
-    def remove(self, id: uuid.UUID):
+    def remove(self, member_id: uuid.UUID):
         try:
-            query_str = f"DELETE FROM {self._endpoints.PEOPLE_TABLE} WHERE id = ? ALLOW FILTERING"
+            query_str = f"DELETE FROM {self._endpoints.MEMBER_TABLE} WHERE id = ? ALLOW FILTERING"
             query = self._session.prepare(query_str)
-            self._session.execute(query, [id])
+            self._session.execute(query, [member_id])
             return True
         except Exception as e:
-            return False
+            return None
 
-
-    # def update_status(self, new_status: str):
-    #     try:
-    #         query_str = f"UPDATE {self._endpoints.PEOPLE_TABLE} SET authorization "
-
-    """
-        TODO: rewrite the function to be more interactive and allow search over: name, id, authorization.
-                Remember to add ALLOW FILTERING at the end since, id and authorization not part of primary key. 
-        
-        In general I will have to redesign the DB schema for this. For now it can stay as is. 
-    """
-    def search(self, face_encodings=None, name=None):
+    def update_status(self, new_status, member_id):
         try:
-            found = []
-            if face_encodings and not name:
-                encoded_face_encodings = pickle.dumps(face_encodings)
-                query = f"SELECT * FROM {self._endpoints.PEOPLE_TABLE} WHERE face_encodings=?"
-                prepared_query = self._session.prepare(query)
-                for row in self._session.execute(prepared_query, [encoded_face_encodings]):
-                    found.append(self._row_to_person(row))
-            elif not face_encodings and name:
-                query = f"SELECT * FROM {self._endpoints.PEOPLE_TABLE} WHERE name=?"
-                prepared_query = self._session.prepare(query)
-                for row in self._session.execute(prepared_query, [name]):
-                    found.append(self._row_to_person(row))
-            elif face_encodings and name:
-                encoded_face_encodings = pickle.dumps(face_encodings)
-                query = f"SELECT * FROM {self._endpoints.PEOPLE_TABLE} WHERE face_encodings=? AND name=?"
-                prepared_query = self._session.prepare(query)
-                for row in self._session.execute(prepared_query, [encoded_face_encodings, name]):
-                    found.append(self._row_to_person(row))
-            else:
-                raise Exception("Search not possible no parameters provided.")
-
-            return found
-
+            query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=? WHERE id = ? ALLOW FILTERING"
+            query = self._session.prepare(query_str)
+            self._session.execute(query, [new_status, member_id])
+            return True
         except Exception as e:
-            raise e
+            return None
 
     def search_authorization(self, authorization=None):
         try:
-            found = []
-            if authorization:
-                query = f"SELECT * FROM {self._endpoints.PEOPLE_TABLE} WHERE authorization_status=? ALLOW FILTERING"
-                prepared_query = self._session.prepare(query)
-                for row in self._session.execute(prepared_query, [authorization]):
-                    found.append(self._row_to_person(row))
-            else:
+            if not authorization:
                 raise Exception("Search not possible no parameters provided.")
 
-            return found
-
+            members = []
+            query_str = f"SELECT * FROM {self._endpoints.MEMBER_TABLE} WHERE authorization_status=? ALLOW FILTERING"
+            query = self._session.prepare(query_str)
+            for row in self._session.execute(query, [authorization]):
+                members.append(self._row_to_member(row))
+            return members
         except Exception as e:
-            return False
+            return None
 
     def get_all(self):
-        people = []
-        query = f"SELECT * FROM {self._endpoints.KEYSPACE_PEOPLE}.{self._endpoints.PEOPLE_TABLE}"
-        prepared_query = self._session.prepare(query)
-        for row in self._session.execute(prepared_query):
-            people.append(self._row_to_person(row))
-        return people
+        try:
+            members = []
+            query_str = f"SELECT * FROM {self._endpoints.MEMBER_TABLE}"
+            query = self._session.prepare(query_str)
+            for row in self._session.execute(query):
+                members.append(self._row_to_member(row))
+            return members
+        except Exception as e:
+            return None
+
+    def search_name(self, name):
+        try:
+            if not name:
+                raise Exception("Name is null")
+
+            members = []
+            query_str = f"SELECT * FROM {self._endpoints.MEMBER_TABLE} WHERE name=? ALLOW FILTERING"
+            query = self._session.prepare(query_str)
+            for row in self._session.execute(query, [name]):
+                members.append(self._row_to_member(row))
+            return members
+        except Exception as e:
+            return None
+
 
     @classmethod
-    def _row_to_person(cls, row):
-        from domains.member import Member
-
+    def _row_to_member(cls, row):
         try:
+            if not row:
+                raise Exception("Row is null")
+
             face_encodings = pickle.loads(row.face_encodings)
             auth_status = AuthorizationStatus(row.authorization_status)
-
             return Member(id=row.id,
                           name=row.name,
                           images_path=row.path_to_images,

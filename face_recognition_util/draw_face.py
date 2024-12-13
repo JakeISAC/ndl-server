@@ -1,6 +1,6 @@
 class Drawing:
-    @classmethod
-    def draw_face_box(cls, draw, bounding_box, name, color):
+    @staticmethod
+    def draw_face_box(draw, bounding_box, name, color):
         top, right, bottom, left = bounding_box
         draw.rectangle(((left, top), (right, bottom)), outline=color)
         text_left, text_top, text_right, text_bottom = draw.textbbox(

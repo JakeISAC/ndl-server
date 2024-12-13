@@ -28,6 +28,15 @@ class AuthorizationStatus(Enum):
     TEMPORARY = 1
     NOT_AUTHORIZED = 2
 
+    def __str__(self):
+        match self:
+            case self.AUTHORIZED:
+                return "authorized"
+            case self.NOT_AUTHORIZED:
+                return "not authorized"
+            case self.TEMPORARY:
+                return "temporary"
+
 
 class ControllerEvents(Enum):
     OPEN_LOCK = 0

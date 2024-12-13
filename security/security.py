@@ -9,8 +9,8 @@ class Security:
     def __init__(self):
         self._draw = Drawing()
 
-    def drawing_based_on_authorization(self, person_authorization: AuthorizationStatus, draw,
-                                       face_location, person_name):
+    def face_bounding_box_authorization(self, person_authorization: AuthorizationStatus, draw,
+                                        face_location, person_name):
         match person_authorization:
             case AuthorizationStatus.AUTHORIZED:
                 self._draw.draw_face_box(draw, face_location, person_name, "green")
