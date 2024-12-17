@@ -22,6 +22,16 @@ class AddMemberResponse(Enum):
             case self.FAILED:
                 return "FAILED"
 
+class DeleteResponse(Enum):
+    OK = 0
+    FAILED = 1
+
+    def __str__(self):
+        match self:
+            case self.OK:
+                return "OK"
+            case self.FAILED:
+                return "FAILED"
 
 class AuthorizationStatus(Enum):
     AUTHORIZED = 0

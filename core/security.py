@@ -1,6 +1,8 @@
-import time
+import json
 from datetime import datetime
+from typing import List
 
+from domains.member import Member
 from face_recognition_util.draw_face import Drawing
 from util.program_codes import AuthorizationStatus, ControllerEvents
 
@@ -22,19 +24,22 @@ class Security:
                 self._draw.draw_face_box(draw, face_location, "ACTION UNKNOWN", "black")
 
     @classmethod
-    def lock_action_based_on_authorization(cls, detected_people, mqtt):
+    def lock_action_based_on_authorization(cls, detected_people: List[Member], mqtt):
         if not detected_people:
             mqtt.send_message(str(ControllerEvents.CLOSE_LOCK), "magnetic_lock")
         authorized = False
-        for person in detected_people:
-            match person.authorization:
+        found_member = None
+        for member in detected_people:
+            match member.authorization:
                 case AuthorizationStatus.AUTHORIZED:
+                    found_member = member
                     authorized = True
                     break
                 case AuthorizationStatus.TEMPORARY:
+                    found_member = member
                     timestamp_format = "%Y-%m-%d %H:%M:%S"
-                    person_timestamp = datetime.strptime(person.access_remaining_date_time, timestamp_format)
-                    if person_timestamp >= datetime.today():
+                    member_timestamp = datetime.strptime(member.access_remaining_date_time, timestamp_format)
+                    if member_timestamp >= datetime.today():
                         authorized = True
                         break
                 case AuthorizationStatus.NOT_AUTHORIZED:
@@ -42,5 +47,6 @@ class Security:
 
         if authorized:
             mqtt.send_message(str(ControllerEvents.OPEN_LOCK), "magnetic_lock")
+            mqtt.send_message(json.dumps(found_member.to_dict()), "last_active_person")
         else:
             mqtt.send_message(str(ControllerEvents.CLOSE_LOCK), "magnetic_lock")

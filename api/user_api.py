@@ -1,6 +1,4 @@
-import json
 import uuid
-from datetime import datetime
 
 from domains.user import User
 from database.users_db import DbOperationsUsers
@@ -12,15 +10,21 @@ class UserApi:
         self._session_db = DbOperationsSession()
 
     def login(self, json_string: str):
-        user_data = User.extract_user(json_string)
-        # generate session token
-        if self._user_db.check_user(user_data.username, user_data.password):
-            token = uuid.uuid4().hex
-            self._session_db.upload_to_db(token)
-            return token
-        else:
+        try:
+            user_data = User.extract_user(json_string)
+            # generate session token
+            if self._user_db.check_user(user_data.username, user_data.password):
+                token = uuid.uuid4().hex
+                self._session_db.upload(token)
+                return token
+            else:
+                return None
+        except Exception:
             return None
 
     def register(self, json_string: str):
-        user_data = User.extract_user(json_string)
-        return self._user_db.upload_to_db(user_data)
+        try:
+            user_data = User.extract_user(json_string)
+            return self._user_db.upload(user_data)
+        except Exception:
+            return None

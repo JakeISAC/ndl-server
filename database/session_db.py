@@ -9,7 +9,7 @@ class DbOperationsSession:
         self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_SESSION)
 
-    def upload_to_db(self, token):
+    def upload(self, token):
         try:
             query_str = f"INSERT INTO {self._endpoints.SESSION_TABLE} (session_token, timestamp) VALUES (?, ?)"
             query = self._session.prepare(query_str)
@@ -24,7 +24,7 @@ class DbOperationsSession:
             query = f"SELECT * FROM {self._endpoints.SESSION_TABLE} WHERE session_token=?"
             prepared_query = self._session.prepare(query)
             for row in self._session.execute(prepared_query, [token]):
-                result.append(row.timestamp)
+                result.append(row)
             if result:
                 return True
             return False

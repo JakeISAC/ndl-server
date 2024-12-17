@@ -40,7 +40,7 @@ class Member:
             face_encodings=None
         )
 
-    def to_json(self):
+    def to_dict(self):
         return {
             "id": str(self.id),
             "name": str(self.name),

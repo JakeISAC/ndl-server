@@ -8,7 +8,7 @@ from mqtt.mqtt import MQTTServer
 from face_recognition_util.compare_faces import CompareFaces
 from database.members_db import DbOperationsMembers
 from face_recognition_util.draw_face import Drawing
-from security.security import Security
+from core.security import Security
 
 
 class FaceDetection:

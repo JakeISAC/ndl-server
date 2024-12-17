@@ -29,6 +29,8 @@ class MQTTServer:
         self._client.subscribe("logs")
         self._client.subscribe("register")
         self._client.subscribe("add_member")
+        self._client.subscribe("all_members")
+        self._client.subscribe("rfid")
 
     def _connect(self):
         try:

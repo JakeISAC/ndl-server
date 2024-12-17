@@ -15,7 +15,7 @@ class DbOperationsMembers:
         self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_MEMBER)
 
-    def upload_to_db(self, member: Member):
+    def upload(self, member: Member):
         try:
             query_str = (f"INSERT INTO {self._endpoints.MEMBER_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
                          f"VALUES (?, ?, ?, ?, ?, ?)")
@@ -29,7 +29,7 @@ class DbOperationsMembers:
 
     def remove(self, member_id: uuid.UUID):
         try:
-            query_str = f"DELETE FROM {self._endpoints.MEMBER_TABLE} WHERE id = ? ALLOW FILTERING"
+            query_str = f"DELETE FROM {self._endpoints.MEMBER_TABLE} WHERE id=? ALLOW FILTERING"
             query = self._session.prepare(query_str)
             self._session.execute(query, [member_id])
             return True

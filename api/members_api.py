@@ -16,13 +16,13 @@ class MembersApi:
             new_encode = EncodeFaces(member.images_path)
             encode = new_encode.generate_encodings_from_file()
             member.face_encodings = encode
-            return self._db_access.upload_to_db(member)
+            return self._db_access.upload(member)
         except Exception as e:
             return None
 
-    def remove_member(self, user_id):
+    def delete_member(self, member_id):
         try:
-            return self._db_access.remove(user_id)
+            return self._db_access.remove(member_id)
         except Exception as e:
             return None
 
@@ -51,7 +51,7 @@ class MembersApi:
         try:
             json_data = []
             for member in members:
-                json_data.append(member.to_json())
+                json_data.append(member.to_dict())
             return json.dumps(json_data)
         except Exception as e:
             return None

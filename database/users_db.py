@@ -11,7 +11,7 @@ class DbOperationsUsers:
         self._session.set_keyspace(self._endpoints.KEYSPACE_USERS)
 
 
-    def upload_to_db(self, user: User):
+    def upload(self, user: User):
         try:
             query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, password) VALUES (?, ?) IF NOT EXISTS"
             query = self._session.prepare(query_str)
