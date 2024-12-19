@@ -30,7 +30,7 @@ class DbOperationsRfid:
                 return True
             return False
         except Exception:
-            return False
+            return None
 
     def remove(self, tag_id):
         try:

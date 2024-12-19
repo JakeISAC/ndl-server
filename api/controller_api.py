@@ -2,7 +2,7 @@ from database.rfid_db import DbOperationsRfid
 
 
 class ControllerApi:
-    def __init__(self, logger):
+    def __init__(self):
         self._rfid_db = DbOperationsRfid()
 
     def rfid_check(self, uid):

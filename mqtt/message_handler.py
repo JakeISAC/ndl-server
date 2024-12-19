@@ -1,10 +1,11 @@
 import json
 from api.user_api import UserApi
 from api.members_api import MembersApi
+from api.controller_api import ControllerApi
 from database.session_db import DbOperationsSession
 from domains.member import Member
 from util.endpoints import Endpoints
-from util.program_codes import UserLoginResponse as UserCodes
+from util.program_codes import UserLoginResponse as UserCodes, ControllerEvents
 from util.program_codes import AddMemberResponse as MemberResponse
 from util.program_codes import DeleteResponse as DeleteCodes
 
@@ -15,6 +16,7 @@ class MessageHandler:
         self._endpoints = Endpoints()
         self._user_api = UserApi()
         self._members_api = MembersApi()
+        self._controller_api = ControllerApi()
         self._session_db = DbOperationsSession()
         self._send_message = send_message # function
         # endpoints to user api
@@ -31,10 +33,11 @@ class MessageHandler:
         self._magnetic_lock = "magnetic_lock"  # publisher
         self._logs = "logs"  # subscriber
         self._lock = "lock"
-        self._rfid_response = "rfid_response"
+        self._rfid = "rfid"
 
     def on_message(self, _, userdata, msg):
         payload = msg.payload.decode()
+        print(payload)
         match msg.topic:
             case self._login:
                 self._handle_login(payload)
@@ -48,6 +51,8 @@ class MessageHandler:
                 self._handle_all_members(payload)
             case self._delete_member:
                 self._handle_delete_member(payload)
+            case self._rfid:
+                self._handle_rfid(payload)
             case _:
                 pass
 
@@ -127,4 +132,10 @@ class MessageHandler:
             self._send_message(str(DeleteCodes.FAILED), "delete_response")
 
     def _handle_rfid(self, payload):
-        pass
+        try:
+            if self._controller_api.rfid_check(payload):
+                self._send_message(str(ControllerEvents.OPEN_LOCK), "magnetic_lock")
+            else:
+                raise Exception("Failed to check RFID")
+        except Exception:
+            self._send_message(str(ControllerEvents.CLOSE_LOCK), "magnetic_lock")
