@@ -1,6 +1,7 @@
 from cassandra.cluster import Cluster
 
 from domains.user import User
+from logs.logs import Logs
 from util.endpoints import Endpoints
 
 class DbOperationsUsers:
@@ -8,6 +9,7 @@ class DbOperationsUsers:
         self._cluster = Cluster()
         self._session = self._cluster.connect()
         self._endpoints = Endpoints()
+        self._logger = Logs().get_logger()
         self._session.set_keyspace(self._endpoints.KEYSPACE_USERS)
 
 
@@ -16,8 +18,10 @@ class DbOperationsUsers:
             query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, password) VALUES (?, ?) IF NOT EXISTS"
             query = self._session.prepare(query_str)
             self._session.execute(query, [user.username, user.password])
+            self._logger.debug(f"Uploaded user {user.username}")
             return True
         except Exception as e:
+            self._logger.exception(f"Failed to upload a user: {e}")
             return False
 
     def get_all(self):
@@ -27,8 +31,10 @@ class DbOperationsUsers:
             prepared_query = self._session.prepare(query)
             for row in self._session.execute(prepared_query):
                 people.append(self._row_to_user(row))
+            self._logger.debug("Successfully retrieved all users")
             return people
         except Exception as e:
+            self._logger.exception(f"Failed to retrieve all users: {e}")
             return None
 
     def check_user(self, username, password):
@@ -44,8 +50,10 @@ class DbOperationsUsers:
                 for passwd in result:
                     if passwd == password:
                         return True
+                self._logger.debug(f"User {username} exists in the authorized database")
             return False
-        except Exception:
+        except Exception as e :
+            self._logger.exception(f"Failed to check user {username}: {e}")
             return None
 
     @classmethod

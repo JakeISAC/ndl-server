@@ -1,9 +1,8 @@
-import json
-
 import paho.mqtt.client as mqtt
 from threading import Thread
 from api.user_api import UserApi
 from api.members_api import MembersApi
+from logs.logs import Logs
 from mqtt.message_handler import MessageHandler
 from util.endpoints import Endpoints
 from database.session_db import DbOperationsSession
@@ -11,6 +10,7 @@ from database.session_db import DbOperationsSession
 class MQTTServer:
     def __init__(self):
         self._endpoints = Endpoints()
+        self._logger = Logs().get_logger()
         self._user_api = UserApi()
         self._members_api = MembersApi()
         self._session_db = DbOperationsSession()
@@ -31,10 +31,12 @@ class MQTTServer:
         self._client.subscribe("add_member")
         self._client.subscribe("all_members")
         self._client.subscribe("rfid")
+        self._client.subscribe("edit_member")
 
     def _connect(self):
         try:
             self._client.connect(self._broker)
+            self._logger.debug("Successfully connected to a MQTT broker")
         except Exception as e:
             raise e
 
@@ -42,9 +44,13 @@ class MQTTServer:
         self._client.loop_start()
 
     def send_message(self, message, topic=None):
-        if not topic:
-            topic = self._topic
-        self._client.publish(str(topic), str(message))
+        try:
+            if not topic:
+                topic = self._topic
+            self._logger.debug(f"Publishing to {topic} with message: {message}")
+            self._client.publish(str(topic), str(message))
+        except Exception as e:
+            self._logger.exception(f"Failed to send a message: {e}")
 
     def stop_mqtt(self):
         self._client.disconnect()
