@@ -1,19 +1,24 @@
-import cv2
+import random
+import time
+
 import face_recognition
 import numpy as np
+# import cv2
 from PIL import ImageDraw, Image
-from picamera2 import Picamera2
 
-from mqtt.mqtt import MQTTServer
-from face_recognition_util.compare_faces import CompareFaces
-from database.members_db import DbOperationsMembers
-from face_recognition_util.draw_face import Drawing
 from core.security import Security
+from database.members_db import DbOperationsMembers
+from face_recognition_util.compare_faces import CompareFaces
+from face_recognition_util.draw_face import Drawing
+from mqtt.mqtt import MQTTServer
+
+
+# from picamera2 import Picamera2
 
 
 class FaceDetection:
     def __init__(self, mqtt: MQTTServer):
-        self._cam = Picamera2()
+        # self._cam = Picamera2()
         self._video_box_name = "Face Detection"
         self._model = "hog"
         self._threshold = 0.9
@@ -21,11 +26,18 @@ class FaceDetection:
         self._draw = Drawing()
         self._security = Security()
         self._mqtt = mqtt
+        # TODO: remove before production
+        self._test_images = ['authorized_faces/images/anastasija/photo_2024-09-24_09-09-44.jpg',
+                             'authorized_faces/images/anastasija/photo_2024-09-24_09-09-44.jpg',
+                             'authorized_faces/images/jakub/photo_2024-09-15_19-58-56.jpg',
+                             'authorized_faces/images/masha/img_1.png',
+                             'authorized_faces/images/anastasija/photo_2024-09-24_09-09-44.jpg']
 
     def start(self):
-        self._cam.start()
+        # self._cam.start()
         while True:
-            pil_image = self._cam.capture_image()
+            # pil_image = self._cam.capture_image()
+            pil_image = Image.open(random.choice(self._test_images))
             rgb_image = pil_image.convert('RGB')
             frame = np.array(rgb_image)
             if not frame.any():
@@ -55,14 +67,16 @@ class FaceDetection:
 
                 # send the mqtt message based on person authorization
                 self._security.lock_action_based_on_authorization(detected_people_authorization, self._mqtt)
-                cv2.imshow(self._video_box_name, np.array(image))
+                # cv2.imshow(self._video_box_name, np.array(image))
             else:
-                cv2.imshow(self._video_box_name, frame)
+                # cv2.imshow(self._video_box_name, frame)
+                pass
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+            #     break
+            time.sleep(5)
 
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
 
     def _assume_match(self, array: list[bool], threshold: int = None):
         if threshold is None:
