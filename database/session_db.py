@@ -1,15 +1,26 @@
-from cassandra.cluster import Cluster
-from util.endpoints import Endpoints
 from datetime import datetime
+
+from cassandra.cluster import Cluster
+
 from logs.logs import Logs
+from util.endpoints import Endpoints
+
 
 class DbOperationsSession:
     def __init__(self):
-        self._cluster = Cluster()
         self._logger = Logs().get_logger()
-        self._session = self._cluster.connect()
+        self._cluster = Cluster()
+        self._session = self._connect()
         self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_SESSION)
+
+    def _connect(self):
+        try:
+            self._logger.debug("Connecting to Session database")
+            return self._cluster.connect()
+        except Exception as e:
+            self._logger.exception(f"Failed to connect to Session database: {e}")
+            raise e
 
     def upload(self, token):
         try:
@@ -30,7 +41,7 @@ class DbOperationsSession:
             for row in self._session.execute(prepared_query, [token]):
                 result.append(row)
             if result:
-                self._logger.debug(f"Checked a session token: {token}")
+                self._logger.info(f"Checked a session token: {token}")
                 return True
             return False
         except Exception as e:

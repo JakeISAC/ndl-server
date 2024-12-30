@@ -9,14 +9,13 @@ class User:
     username: str
     password: str
 
-    def __post_init__(self):
-        self._logger = Logs().get_logger()
-
-    def extract_user(self, json_data):
+    @staticmethod
+    def extract_user(json_data):
+        logger = Logs().get_logger()
         try:
             data = json.loads(json_data)
-            self._logger.debug("User extracted successfully from JSON")
+            logger.debug("User extracted successfully from JSON")
             return User(username=data["username"], password=data["password"])
         except Exception as e:
-            self._logger.exception(f"Failed to extract a User from JSON: {e}")
+            logger.exception(f"Failed to extract a User from JSON: {e}")
             return None

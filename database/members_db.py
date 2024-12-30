@@ -1,23 +1,35 @@
-import uuid
-from cassandra.cluster import Cluster
-from util.endpoints import Endpoints
 import pickle
+import uuid
+
+from cassandra.cluster import Cluster
+
 from domains.member import Member
-from util.codes.authorization_codes import AuthorizationStatus
 from logs.logs import Logs
+from util.codes.authorization_codes import AuthorizationStatus
+from util.endpoints import Endpoints
+
 
 class DbOperationsMembers:
     def __init__(self):
-        self._cluster = Cluster()
-        self._session = self._cluster.connect()
-        self._endpoints = Endpoints()
         self._logger = Logs().get_logger()
+        self._cluster = Cluster()
+        self._session = self._connect()
+        self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_MEMBER)
+
+    def _connect(self):
+        try:
+            self._logger.debug("Connecting to Members database")
+            return self._cluster.connect()
+        except Exception as e:
+            self._logger.exception(f"Failed to connect to Members database: {e}")
+            raise e
 
     def upload(self, member: Member):
         try:
-            query_str = (f"INSERT INTO {self._endpoints.MEMBER_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
-                         f"VALUES (?, ?, ?, ?, ?, ?)")
+            query_str = (
+                f"INSERT INTO {self._endpoints.MEMBER_TABLE} (id, authorization_status, access_remaining_date_time, name, path_to_images, face_encodings) "
+                f"VALUES (?, ?, ?, ?, ?, ?)")
             query = self._session.prepare(query_str)
             encoded_face_encodings = pickle.dumps(member.face_encodings)
             self._session.execute(query, [member.id, member.authorization.value, member.access_remaining_date_time,
@@ -95,7 +107,6 @@ class DbOperationsMembers:
             self._logger.exception(f"Failed to find {name}: {e}")
             return None
 
-
     @classmethod
     def _row_to_member(cls, row):
         try:
@@ -109,7 +120,7 @@ class DbOperationsMembers:
                           images_path=row.path_to_images,
                           authorization=auth_status,
                           face_encodings=face_encodings,
-                          access_remaining_date_time= row.access_remaining_date_time
+                          access_remaining_date_time=row.access_remaining_date_time
                           )
         except Exception as e:
             raise e

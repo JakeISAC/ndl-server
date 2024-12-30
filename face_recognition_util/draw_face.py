@@ -6,7 +6,7 @@ class Drawing:
         self._logger = Logs().get_logger()
 
     def draw_face_box(self, draw, bounding_box, name, color):
-        self._logger.info("Attempting to draw a face bounding box")
+        self._logger.debug("Attempting to draw a face bounding box")
         try:
             top, right, bottom, left = bounding_box
             draw.rectangle(((left, top), (right, bottom)), outline=color)

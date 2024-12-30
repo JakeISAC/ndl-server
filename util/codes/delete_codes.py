@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class DeleteCodes(Enum):
     OK = 0
     FAILED = 1

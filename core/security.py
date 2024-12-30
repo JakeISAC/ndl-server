@@ -4,9 +4,9 @@ from typing import List
 
 from domains.member import Member
 from face_recognition_util.draw_face import Drawing
-from util.codes.controller_codes import ControllerEvents
-from util.codes.authorization_codes import AuthorizationStatus
 from logs.logs import Logs
+from util.codes.authorization_codes import AuthorizationStatus
+from util.codes.controller_codes import ControllerEvents
 
 
 class Security:

@@ -1,11 +1,14 @@
-import paho.mqtt.client as mqtt
 from threading import Thread
-from api.user_api import UserApi
+
+import paho.mqtt.client as mqtt
+
 from api.members_api import MembersApi
+from api.user_api import UserApi
+from database.session_db import DbOperationsSession
 from logs.logs import Logs
 from mqtt.message_handler import MessageHandler
 from util.endpoints import Endpoints
-from database.session_db import DbOperationsSession
+
 
 class MQTTServer:
     def __init__(self):
@@ -16,7 +19,6 @@ class MQTTServer:
         self._session_db = DbOperationsSession()
         self._on_message = MessageHandler(self.send_message).on_message
         # MQTT server config
-        # broker here is the mosquito broker running on the pi
         self._broker = "localhost"
         self._topic = "weird-stuff"
         # set up MQTT client
@@ -26,17 +28,18 @@ class MQTTServer:
         self._connect()
         # subscribe to the topic I need to listen to
         self._client.subscribe("login_ask")
-        self._client.subscribe("logs")
         self._client.subscribe("register")
         self._client.subscribe("add_member")
         self._client.subscribe("all_members")
         self._client.subscribe("rfid")
         self._client.subscribe("edit_member")
+        self._client.subscribe("delete_member")
+        self._client.subscribe("change_password")
 
     def _connect(self):
         try:
             self._client.connect(self._broker)
-            self._logger.debug("Successfully connected to a MQTT broker")
+            self._logger.info("Successfully connected to a MQTT broker")
         except Exception as e:
             raise e
 

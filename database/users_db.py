@@ -4,14 +4,22 @@ from domains.user import User
 from logs.logs import Logs
 from util.endpoints import Endpoints
 
+
 class DbOperationsUsers:
     def __init__(self):
-        self._cluster = Cluster()
-        self._session = self._cluster.connect()
-        self._endpoints = Endpoints()
         self._logger = Logs().get_logger()
+        self._cluster = Cluster()
+        self._session = self._connect()
+        self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_USERS)
 
+    def _connect(self):
+        try:
+            self._logger.debug("Connecting to User database")
+            return self._cluster.connect()
+        except Exception as e:
+            self._logger.exception(f"Failed to connect to User database: {e}")
+            raise e
 
     def upload(self, user: User):
         try:
@@ -23,6 +31,17 @@ class DbOperationsUsers:
         except Exception as e:
             self._logger.exception(f"Failed to upload a user: {e}")
             return False
+
+    def delete(self, username):
+        try:
+            query_str = f"DELETE FROM {self._endpoints.USERS_TABLE} WHERE username=?"
+            query = self._session.prepare(query_str)
+            self._session.execute(query, [username])
+            self._logger.debug(f"Deleted user {username}")
+            return True
+        except Exception as e:
+            self._logger.exception(f"Failed to delete user {username}: {e}")
+            return None
 
     def get_all(self):
         try:
@@ -37,7 +56,7 @@ class DbOperationsUsers:
             self._logger.exception(f"Failed to retrieve all users: {e}")
             return None
 
-    def check_user(self, username, password):
+    def check(self, username, password):
         try:
             result = []
             query = f"SELECT password FROM {self._endpoints.USERS_TABLE} WHERE username=?"
@@ -49,11 +68,23 @@ class DbOperationsUsers:
                 # collect to array
                 for passwd in result:
                     if passwd == password:
+                        self._logger.debug(f"User {username} exists in the authorized database")
                         return True
-                self._logger.debug(f"User {username} exists in the authorized database")
+            self._logger.debug(f"User {username} does not exist in the authorized database")
             return False
-        except Exception as e :
+        except Exception as e:
             self._logger.exception(f"Failed to check user {username}: {e}")
+            return None
+
+    def change_password(self, username, new_password):
+        try:
+            query_str = f"UPDATE {self._endpoints.USERS_TABLE} SET password=? WHERE username=?"
+            query = self._session.prepare(query_str)
+            self._session.execute(query, [new_password, username])
+            self._logger.debug(f"Changed password for user {username}")
+            return True
+        except Exception as e:
+            self._logger.exception(f"Failed to change password for user {username}: {e}")
             return None
 
     @classmethod

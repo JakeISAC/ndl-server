@@ -1,8 +1,9 @@
 import json
 import uuid
 from dataclasses import dataclass
-from util.codes.authorization_codes import AuthorizationStatus
+
 from logs.logs import Logs
+from util.codes.authorization_codes import AuthorizationStatus
 
 
 @dataclass
@@ -18,7 +19,7 @@ class Member:
         self._logger = Logs().get_logger()
 
     def validate(self):
-        self._logger.info("Attempting to validate Member struct")
+        self._logger.debug("Attempting to validate Member struct")
         try:
             if type(self.id) != uuid.UUID:
                 return False
@@ -41,7 +42,7 @@ class Member:
     @staticmethod
     def extract_member(json_data):
         logger = Logs().get_logger()
-        logger.info("Attempting to serializing JSON to Member")
+        logger.debug("Attempting to serializing JSON to Member")
         try:
             data = json.loads(json_data)
             return Member(
@@ -49,7 +50,8 @@ class Member:
                 name=data["name"],
                 images_path=data["images_path"],
                 authorization=data["authorization"],
-                access_remaining_date_time=data["access_remaining_date_time"] if data["access_remaining_date_time"] else None,
+                access_remaining_date_time=data["access_remaining_date_time"] if data[
+                    "access_remaining_date_time"] else None,
                 face_encodings=None
             )
         except Exception as e:
@@ -57,7 +59,7 @@ class Member:
             return None
 
     def to_dict(self):
-        self._logger.info("Attempting to serialize Member to dict")
+        self._logger.debug("Attempting to serialize Member to dict")
         try:
             return {
                 "id": str(self.id),

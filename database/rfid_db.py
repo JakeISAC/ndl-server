@@ -6,11 +6,19 @@ from util.endpoints import Endpoints
 
 class DbOperationsRfid:
     def __init__(self):
-        self._cluster = Cluster()
         self._logger = Logs().get_logger()
-        self._session = self._cluster.connect()
+        self._cluster = Cluster()
+        self._session = self._connect()
         self._endpoints = Endpoints()
         self._session.set_keyspace(self._endpoints.KEYSPACE_RFID)
+
+    def _connect(self):
+        try:
+            self._logger.debug("Connecting to Rfid database")
+            return self._cluster.connect()
+        except Exception as e:
+            self._logger.exception(f"Failed to connect to Rfid database: {e}")
+            raise e
 
     def upload(self, rfid: str):
         try:

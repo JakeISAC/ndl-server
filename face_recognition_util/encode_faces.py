@@ -1,4 +1,5 @@
 import os
+
 import face_recognition
 
 from logs.logs import Logs
@@ -40,6 +41,3 @@ class EncodeFaces:
         except Exception as e:
             self._logger.exception(f"Failed to generate face encodings: {e}")
             return None
-
-
-

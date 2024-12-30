@@ -1,21 +1,20 @@
 import json
 import uuid
 
-from api.user_api import UserApi
-from api.members_api import MembersApi
 from api.controller_api import ControllerApi
+from api.members_api import MembersApi
+from api.user_api import UserApi
 from database.session_db import DbOperationsSession
 from domains.member import Member
 from domains.user import User
-from util.codes.authorization_codes import AuthorizationStatus
-from util.endpoints import Endpoints
-from util.codes.user_codes import UserLoginCodes as UserCodes
-from util.codes.controller_codes import ControllerEvents
-from util.codes.member_codes import AddMemberCodes as MemberResponse
-from util.codes.delete_codes import DeleteCodes as DeleteCodes
 from logs.logs import Logs
+from util.codes.authorization_codes import AuthorizationStatus
+from util.codes.controller_codes import ControllerEvents
+from util.codes.delete_codes import DeleteCodes as DeleteCodes
+from util.codes.member_codes import AddMemberCodes as MemberResponse
+from util.codes.user_codes import UserLoginCodes as UserCodes
+from util.endpoints import Endpoints
 
-# TODO: Add proper logs for exception handling
 
 class MessageHandler:
     def __init__(self, send_message):
@@ -25,13 +24,14 @@ class MessageHandler:
         self._members_api = MembersApi()
         self._controller_api = ControllerApi()
         self._session_db = DbOperationsSession()
-        self._send_message = send_message # function
+        self._send_message = send_message  # function
         # endpoints to user api
         self._login = "login_ask"
         self._register = "register"
+        self._change_password = "change_password"
         self._add_member = "add_member"
         self._lock_status = "lock_status"
-        self._last_active_person = "last_active_person" # DONE in the Security module
+        self._last_active_person = "last_active_person"  # DONE in the Security module
         self._change_password = "change_password"
         self._all_members = "all_members"
         self._change_member = "change_member_data"
@@ -47,9 +47,11 @@ class MessageHandler:
         payload = msg.payload.decode()
         match msg.topic:
             case self._login:
-                self._handle_login(payload)
+                self._handle_user_login(payload)
             case self._register:
-                self._handle_register(payload)
+                self._handle_user_register(payload)
+            case self._change_password:
+                self._handle_change_password(payload)
             case self._add_member:
                 self._handle_add_member(payload)
             case self._all_members:
@@ -63,7 +65,7 @@ class MessageHandler:
             case _:
                 pass
 
-    def _handle_login(self, payload):
+    def _handle_user_login(self, payload):
         try:
             user_data = User.extract_user(str(payload))
             token = self._user_api.login(user_data)
@@ -71,17 +73,17 @@ class MessageHandler:
             if token:
                 response['code'] = str(UserCodes.OK)
                 response['session_token'] = token
-                self._logger.debug("Successfully logged in")
+                self._logger.info("Successfully logged in")
                 self._send_message(json.dumps(response), "login_response")
             else:
-                self._logger.debug("Token is invalid")
+                self._logger.info("Token is invalid")
                 self._send_message(json.dumps(response), "login_response")
         except Exception as e:
-            self._logger.exception(f"Failed to login")
+            self._logger.exception(f"Failed to login: {e}")
             response = {'code': str(UserCodes.FAILED), 'session_token': None}
             self._send_message(json.dumps(response), "login_response")
 
-    def _handle_register(self, payload):
+    def _handle_user_register(self, payload):
         try:
             payload_parsed = json.loads(payload)
             user = payload_parsed['value']
@@ -90,7 +92,11 @@ class MessageHandler:
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
 
-            if self._user_api.register(str(user)):
+            user_data = User.extract_user(str(user))
+            if not user_data:
+                raise Exception("No user extracted")
+
+            if self._user_api.register(user_data):
                 self._logger.debug(f"Successfully registered new user {user}")
                 self._send_message(str(UserCodes.OK), "register_response")
             else:
@@ -99,6 +105,27 @@ class MessageHandler:
         except Exception as e:
             self._logger.exception(f"Failed to register a new user: {e}")
             self._send_message(str(UserCodes.FAILED), "register_response")
+
+    def _handle_change_password(self, payload):
+        try:
+            payload_parsed = json.loads(payload)
+            username = payload_parsed['value']['username']
+            old_password = payload_parsed['value']['old_password']
+            new_password = payload_parsed['value']['new_password']
+            session_token = payload_parsed['session_token']
+            # check authentication
+            if not self._session_db.check_token(session_token):
+                raise Exception("Session token is invalid.")
+
+            if self._user_api.change_password(username, old_password, new_password):
+                self._logger.debug(f"Successfully changed password for user {username}")
+                self._send_message(str(UserCodes.OK), "change_password/response")
+            else:
+                self._logger.debug(f"Failed to change password for user {username}")
+                self._send_message(str(UserCodes.FAILED), "change_password/response")
+        except Exception as e:
+            self._logger.exception(f"Failed to change password for user: {e}")
+            self._send_message(str(UserCodes.FAILED), "change_password/response")
 
     def _handle_add_member(self, payload):
         try:
@@ -122,7 +149,6 @@ class MessageHandler:
 
     def _handle_all_members(self, payload):
         try:
-            print(payload)
             payload_parsed = json.loads(payload)
             session_token = payload_parsed['session_token']
             # check authentication
