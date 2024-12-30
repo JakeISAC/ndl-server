@@ -14,12 +14,15 @@ follow the `uv` guidelines.
 ```
 docker run -p 9042:9042 -d --name ndl scylladb/scylla
 ```
-*This command will first pull and then start a docker container (name does not matter). Takes a few seconds to initialize*
+
+*This command will first pull and then start a docker container (name does not matter). Takes a few seconds to
+initialize*
 
 ### ScyllaDB
 
-First we need to create keyspaces (databases) where we will declare all necessary tables. 
+First we need to create keyspaces (databases) where we will declare all necessary tables.
 Each table is created in a separate keyspace in order to fully parallelize reads and writes.
+
 1. ```
    CREATE KEYSPACE face_recognition WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor' : 1};
    ```
