@@ -11,8 +11,8 @@ from util.codes.controller_codes import ControllerEvents
 
 class Security:
     def __init__(self):
-        self._draw = Drawing()
         self._logger = Logs().get_logger()
+        self._draw = Drawing()
 
     def face_bounding_box_authorization(self, person_authorization: AuthorizationStatus, draw,
                                         face_location, person_name):

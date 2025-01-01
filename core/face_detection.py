@@ -13,6 +13,7 @@ from core.security import Security
 
 class FaceDetection:
     def __init__(self, mqtt: MQTTServer):
+        self._logger = Logs().get_logger()
         self._cam = Picamera2()
         self._video_box_name = "Face Detection"
         self._model = "hog"
@@ -24,18 +25,23 @@ class FaceDetection:
 
     def start(self):
         self._cam.start()
+        self._logger.debug("Started camera feed")
         while True:
             pil_image = self._cam.capture_image()
             rgb_image = pil_image.convert('RGB')
+            self._logger.debug("Image captured")
             frame = np.array(rgb_image)
             if not frame.any():
+                self._logger.error("Failed to case the frame to array")
                 continue
 
             face_locations = face_recognition.face_locations(frame, model=self._model)
             if face_locations:
+                self._logger.debug("Faces found")
                 detected_people_authorization = []
 
                 face_encodings = face_recognition.face_encodings(frame, face_locations)
+                self._logger.debug("Faces encoded")
                 image = Image.fromarray(frame)
                 draw = ImageDraw.Draw(image)
 
