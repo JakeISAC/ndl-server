@@ -8,9 +8,9 @@ from logs.logs import Logs
 
 class UserApi:
     def __init__(self):
+        self._logger = Logs().get_logger()
         self._user_db = DbOperationsUsers()
         self._session_db = DbOperationsSession()
-        self._logger = Logs().get_logger()
 
     def login(self, user_data: User):
         self._logger.trace("Attempting to login")
