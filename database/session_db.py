@@ -16,7 +16,7 @@ class DbOperationsSession:
 
     def _connect(self):
         try:
-            self._logger.debug("Connecting to Session database")
+            self._logger.info("Connecting to Session database")
             return self._cluster.connect()
         except Exception as e:
             self._logger.exception(f"Failed to connect to Session database: {e}")
