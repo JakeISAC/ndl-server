@@ -41,7 +41,7 @@ class DbOperationsSession:
             for row in self._session.execute(prepared_query, [token]):
                 result.append(row)
             if result:
-                self._logger.info(f"Checked a session token: {token}")
+                self._logger.debug(f"Checked a session token: {token}")
                 return True
             return False
         except Exception as e:

@@ -49,7 +49,7 @@ class Member:
                 id=uuid.uuid4(),
                 name=data["name"],
                 images_path=data["images_path"],
-                authorization=data["authorization"],
+                authorization=AuthorizationStatus.from_string(data["authorization"].lower()),
                 access_remaining_date_time=data["access_remaining_date_time"] if data["access_remaining_date_time"] else None,
                 face_encodings=None
             )

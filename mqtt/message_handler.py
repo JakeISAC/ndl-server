@@ -133,7 +133,7 @@ class MessageHandler:
             member = payload_parsed['value']
             session_token = payload_parsed['session_token']
             # check authentication
-            if self._session_db.check_token(session_token):
+            if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
 
             member_extracted = Member.extract_member(member)
