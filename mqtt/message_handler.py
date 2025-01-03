@@ -73,10 +73,10 @@ class MessageHandler:
             if token:
                 response['code'] = str(UserCodes.OK)
                 response['session_token'] = token
-                self._logger.info("Successfully logged in")
+                self._logger.success("Successfully logged in")
                 self._send_message(json.dumps(response), "login_response")
             else:
-                self._logger.info("Token is invalid")
+                self._logger.warning("Token is invalid")
                 self._send_message(json.dumps(response), "login_response")
         except Exception as e:
             self._logger.exception(f"Failed to login: {e}")
@@ -97,10 +97,10 @@ class MessageHandler:
                 raise Exception("No user extracted")
 
             if self._user_api.register(user_data):
-                self._logger.debug(f"Successfully registered new user {user}")
+                self._logger.success(f"Successfully registered new user {user}")
                 self._send_message(str(UserCodes.OK), "register_response")
             else:
-                self._logger.debug(f"Failed to register a new user {user}")
+                self._logger.warning(f"Failed to register a new user {user}")
                 self._send_message(str(UserCodes.FAILED), "register_response")
         except Exception as e:
             self._logger.exception(f"Failed to register a new user: {e}")
@@ -118,10 +118,10 @@ class MessageHandler:
                 raise Exception("Session token is invalid.")
 
             if self._user_api.change_password(username, old_password, new_password):
-                self._logger.debug(f"Successfully changed password for user {username}")
+                self._logger.success(f"Successfully changed password for user {username}")
                 self._send_message(str(UserCodes.OK), "change_password/response")
             else:
-                self._logger.debug(f"Failed to change password for user {username}")
+                self._logger.warning(f"Failed to change password for user {username}")
                 self._send_message(str(UserCodes.FAILED), "change_password/response")
         except Exception as e:
             self._logger.exception(f"Failed to change password for user: {e}")
@@ -140,9 +140,12 @@ class MessageHandler:
             if not member_extracted:
                 raise Exception(f"No member extracted")
 
-            self._members_api.add_member(member_extracted)
-            self._logger.debug(f"Successfully added a new member {member}")
-            self._send_message(str(MemberResponse.OK), "add_member_response")
+            if self._members_api.add_member(member_extracted):
+                self._logger.success(f"Successfully added a new member {member}")
+                self._send_message(str(MemberResponse.OK), "add_member_response")
+            else:
+                self._logger.warning(f"Failed to add a new member {member}")
+                self._send_message(str(MemberResponse.FAILED), "add_member_response")
         except Exception as e:
             self._logger.exception(f"Failed to add a new member: {e}")
             self._send_message(str(MemberResponse.FAILED), "add_member_response")
@@ -156,8 +159,12 @@ class MessageHandler:
                 raise Exception("Session token is invalid.")
 
             members = self._members_api.get_all_members()
-            self._logger.debug("Successfully retrieved all members")
-            self._send_message(members, "all_members_response")
+            if members:
+                self._logger.success("Successfully retrieved all members")
+                self._send_message(members, "all_members_response")
+            else:
+                self._logger.warning("Failed to retrieved all members")
+                self._send_message(str(MemberResponse.FAILED), "all_members_response")
         except Exception as e:
             self._logger.exception(f"Failed to retrieved all members: {e}")
             self._send_message(str(MemberResponse.FAILED), "all_members_response")
@@ -171,10 +178,12 @@ class MessageHandler:
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
 
-            # delete member from the db
-            self._members_api.delete_member(member_id)
-            self._logger.debug(f"Successfully deleted a member with ID: {member_id}")
-            self._send_message(str(DeleteCodes.OK), "delete_response")
+            if self._members_api.delete_member(member_id):
+                self._logger.success(f"Successfully deleted a member with ID: {member_id}")
+                self._send_message(str(DeleteCodes.OK), "delete_response")
+            else:
+                self._logger.warning(f"Failed to delete a member with ID: {member_id}")
+                self._send_message(str(DeleteCodes.FAILED), "delete_response")
         except Exception as e:
             self._logger.exception(f"Failed to delete a member: {e}")
             self._send_message(str(DeleteCodes.FAILED), "delete_response")
@@ -189,9 +198,12 @@ class MessageHandler:
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
 
-            self._members_api.update_status(new_status, member_id)
-            self._logger.debug("Successfully updated a status of a member")
-            self._send_message(str(MemberResponse.OK), "edit_member_status/response")
+            if self._members_api.update_status(new_status, member_id):
+                self._logger.success("Successfully updated a status of a member")
+                self._send_message(str(MemberResponse.OK), "edit_member_status/response")
+            else:
+                self._logger.warning("Failed to update a status of a member")
+                self._send_message(str(MemberResponse.FAILED), "edit_member_status/response")
         except Exception as e:
             self._logger.exception(f"Failed to edit member status: {e}")
             self._send_message(str(MemberResponse.FAILED), "edit_member_status/response")
@@ -200,10 +212,11 @@ class MessageHandler:
         try:
             uid = str(payload)
             if self._controller_api.rfid_check(uid):
-                self._logger.debug(f"Successfully logged in with the RFID: {uid}")
+                self._logger.success(f"Successfully logged in with the RFID: {uid}")
                 self._send_message(str(ControllerEvents.OPEN_LOCK), "magnetic_lock")
             else:
-                raise Exception("Failed to check RFID")
+                self._logger.warning(f"Failed to logged in with the RFID: {uid}")
+                self._send_message(str(ControllerEvents.CLOSE_LOCK), "magnetic_lock")
         except Exception as e:
             self._logger.exception(f"Failed to logged in with RFID: {e}")
             self._send_message(str(ControllerEvents.CLOSE_LOCK), "magnetic_lock")

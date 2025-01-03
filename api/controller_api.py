@@ -8,7 +8,7 @@ class ControllerApi:
         self._logger = Logs().get_logger()
 
     def rfid_check(self, uid):
-        self._logger.debug("Attempting to check rfid uid")
+        self._logger.trace("Attempting to check rfid uid")
         try:
             return self._rfid_db.check(uid)
         except Exception as e:

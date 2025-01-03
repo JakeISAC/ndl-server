@@ -13,7 +13,7 @@ class UserApi:
         self._logger = Logs().get_logger()
 
     def login(self, user_data: User):
-        self._logger.debug("Attempting to login")
+        self._logger.trace("Attempting to login")
         try:
             if self._user_db.check(user_data.username, user_data.password):
                 token = uuid.uuid4().hex
@@ -26,7 +26,7 @@ class UserApi:
             return None
 
     def register(self, user_data: User):
-        self._logger.debug("Attempting to register")
+        self._logger.trace("Attempting to register")
         try:
             return self._user_db.upload(user_data)
         except Exception as e:
@@ -34,7 +34,7 @@ class UserApi:
             return None
 
     def change_password(self, username, old_password, new_password):
-        self._logger.debug("Attempting to change password")
+        self._logger.trace("Attempting to change password")
         try:
             if self._user_db.check(username, old_password):
                 return self._user_db.change_password(username, new_password)

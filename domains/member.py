@@ -19,7 +19,7 @@ class Member:
         self._logger = Logs().get_logger()
 
     def validate(self):
-        self._logger.debug("Attempting to validate Member struct")
+        self._logger.trace("Attempting to validate Member struct")
         try:
             if type(self.id) != uuid.UUID:
                 return False
@@ -33,8 +33,8 @@ class Member:
                 return False
             if type(self.face_encodings) != bytes.hex:
                 return False
+            self._logger.debug("Member struct validated successfully")
             return True
-
         except Exception as e:
             self._logger.exception(f"Failed to validate a Member: {e}")
             return False
@@ -42,32 +42,35 @@ class Member:
     @staticmethod
     def extract_member(json_data):
         logger = Logs().get_logger()
-        logger.debug("Attempting to serializing JSON to Member")
+        logger.trace("Attempting to serializing JSON to Member")
         try:
             data = json.loads(json_data)
-            return Member(
+            member = Member(
                 id=uuid.uuid4(),
                 name=data["name"],
                 images_path=data["images_path"],
                 authorization=data["authorization"],
-                access_remaining_date_time=data["access_remaining_date_time"] if data[
-                    "access_remaining_date_time"] else None,
+                access_remaining_date_time=data["access_remaining_date_time"] if data["access_remaining_date_time"] else None,
                 face_encodings=None
             )
+            logger.debug(f"Member extracted successfully from JSON: {member}")
+            return member
         except Exception as e:
             logger.exception(f"Failed to extract a Member from JSON data: {e}")
             return None
 
     def to_dict(self):
-        self._logger.debug("Attempting to serialize Member to dict")
+        self._logger.trace("Attempting to serialize Member to dict")
         try:
-            return {
+            member = {
                 "id": str(self.id),
                 "name": str(self.name),
                 "images_path": str(self.images_path),
                 "authorization": str(self.authorization),
                 "access_remaining": str(self.access_remaining_date_time)
             }
+            self._logger.debug(f"Member serialized to dict: {member}")
+            return member
         except Exception as e:
             self._logger.exception(f"Failed to serialize Member to dict: {e}")
             return None

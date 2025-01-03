@@ -14,6 +14,7 @@ class EncodeFaces:
         self._logger = Logs().get_logger()
 
     def generate_encodings_from_file(self):
+        self._logger.trace("Attempting to generate face encodings")
         try:
             encodings = []
             if os.path.isdir(self._path):
@@ -36,7 +37,7 @@ class EncodeFaces:
                 for encoding in face_encodings:
                     encodings.append(encoding)
 
-            self._logger.debug("Successfully encode faces of the new user")
+            self._logger.info("Successfully encode faces of the new user")
             return encodings
         except Exception as e:
             self._logger.exception(f"Failed to generate face encodings: {e}")

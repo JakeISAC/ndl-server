@@ -14,9 +14,11 @@ class CompareFaces:
         self._logger = Logs().get_logger()
 
     def compare_faces(self):
-        self._logger.debug("Attempting to compare faces")
+        self._logger.trace("Attempting to compare faces")
         try:
-            return face_recognition.compare_faces(self._source, self._to_check, tolerance=self._tolerance)
+            faces = face_recognition.compare_faces(self._source, self._to_check, tolerance=self._tolerance)
+            self._logger.debug(f"Faces compared successfully: {faces}")
+            return faces
         except Exception as e:
             self._logger.exception(f"Failed to compare faces: {e}")
             return None
