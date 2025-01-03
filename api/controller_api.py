@@ -4,8 +4,8 @@ from logs.logs import Logs
 
 class ControllerApi:
     def __init__(self):
-        self._rfid_db = DbOperationsRfid()
         self._logger = Logs().get_logger()
+        self._rfid_db = DbOperationsRfid()
 
     def rfid_check(self, uid):
         self._logger.trace("Attempting to check rfid uid")

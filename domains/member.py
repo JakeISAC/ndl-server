@@ -40,7 +40,7 @@ class Member:
             return False
 
     @staticmethod
-    def extract_member(json_data):
+    def new_member(json_data):
         logger = Logs().get_logger()
         logger.trace("Attempting to serializing JSON to Member")
         try:

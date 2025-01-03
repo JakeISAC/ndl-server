@@ -136,7 +136,7 @@ class MessageHandler:
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
 
-            member_extracted = Member.extract_member(member)
+            member_extracted = Member.new_member(member)
             if not member_extracted:
                 raise Exception(f"No member extracted")
 

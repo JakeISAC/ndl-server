@@ -9,8 +9,8 @@ from logs.logs import Logs
 
 class MembersApi:
     def __init__(self):
-        self._db_access = DbOperationsMembers()
         self._logger = Logs().get_logger()
+        self._db_access = DbOperationsMembers()
 
     def add_member(self, member: Member):
         self._logger.trace("Attempting to add a member")
