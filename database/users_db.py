@@ -23,7 +23,7 @@ class DbOperationsUsers:
 
     def upload(self, user: User):
         try:
-            query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, password) VALUES (?, ?) IF NOT EXISTS"
+            query_str = f"INSERT INTO {self._endpoints.USERS_TABLE} (username, password) VALUES (?, ?)"
             query = self._session.prepare(query_str)
             self._session.execute(query, [user.username, user.password])
             self._logger.debug(f"Uploaded user {user.username}")
