@@ -35,10 +35,10 @@ class MembersApi:
             self._logger.exception(f"{e}")
             return None
 
-    def update_status(self, new_status, member_id):
+    def update_status(self, member_id, new_status, date=None):
         self._logger.trace("Attempting to update member status")
         try:
-            return self._db_access.update_status(new_status, member_id)
+            return self._db_access.update_status(new_status, member_id, date)
         except Exception as e:
             self._logger.exception(f"{e}")
             return None

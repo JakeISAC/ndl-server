@@ -50,7 +50,8 @@ class Member:
                 name=data["name"],
                 images_path=data["images_path"],
                 authorization=AuthorizationStatus.from_string(data["authorization"].lower()),
-                access_remaining_date_time=data["access_remaining_date_time"] if data["access_remaining_date_time"] else None,
+                access_remaining_date_time=data["access_remaining_date_time"] if data[
+                    "access_remaining_date_time"] else None,
                 face_encodings=None
             )
             logger.debug(f"Member extracted successfully from JSON: {member}")

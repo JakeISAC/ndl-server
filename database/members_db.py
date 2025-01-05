@@ -51,11 +51,15 @@ class DbOperationsMembers:
             self._logger.exception(f"Failed to remove {member_id}: {e}")
             return None
 
-    def update_status(self, new_status, member_id):
+    def update_status(self, member_id, new_status, date=None):
         try:
-            query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=? WHERE id = ? ALLOW FILTERING"
+            if AuthorizationStatus.AUTHORIZED or AuthorizationStatus.NOT_AUTHORIZED:
+                query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=? WHERE id = ? ALLOW FILTERING"
+            else:
+                query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=?, access_remaining_date_time=? WHERE id = ? ALLOW FILTERING"
             query = self._session.prepare(query_str)
-            self._session.execute(query, [new_status, member_id])
+            self._session.execute(query, [new_status, member_id]) if date is None else self._session.execute(query, [
+                new_status, date, member_id])
             self._logger.debug(f"Updated {member_id} with {AuthorizationStatus.__str__(new_status)}")
             return True
         except Exception as e:

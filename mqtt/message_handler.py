@@ -31,7 +31,7 @@ class MessageHandler:
         self._change_password = "change_password"
         self._add_member = "add_member"
         self._lock_status = "lock_status"
-        self._last_active_person = "last_active_person"  # DONE in the Security module
+        # self._last_active_person = "last_active_person" ----- Done in the Security module
         self._change_password = "change_password"
         self._all_members = "all_members"
         self._change_member = "change_member_data"
@@ -86,8 +86,10 @@ class MessageHandler:
     def _handle_user_register(self, payload):
         try:
             payload_parsed = json.loads(payload)
+            # values
             user = payload_parsed['value']
             session_token = payload_parsed['session_token']
+
             # check authentication
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
@@ -109,10 +111,12 @@ class MessageHandler:
     def _handle_change_password(self, payload):
         try:
             payload_parsed = json.loads(payload)
+            # values
             username = payload_parsed['value']['username']
             old_password = payload_parsed['value']['old_password']
             new_password = payload_parsed['value']['new_password']
             session_token = payload_parsed['session_token']
+
             # check authentication
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
@@ -130,8 +134,10 @@ class MessageHandler:
     def _handle_add_member(self, payload):
         try:
             payload_parsed = json.loads(payload)
+            # values
             member = payload_parsed['value']
             session_token = payload_parsed['session_token']
+
             # check authentication
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
@@ -153,7 +159,9 @@ class MessageHandler:
     def _handle_all_members(self, payload):
         try:
             payload_parsed = json.loads(payload)
+            # values
             session_token = payload_parsed['session_token']
+
             # check authentication
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
@@ -172,8 +180,10 @@ class MessageHandler:
     def _handle_delete_member(self, payload):
         try:
             payload_parsed = json.loads(payload)
+            # values
             member_id = uuid.UUID(payload_parsed['value'])
             session_token = payload_parsed['session_token']
+
             # check authentication
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
@@ -191,14 +201,17 @@ class MessageHandler:
     def _handle_edit_member_status(self, payload):
         try:
             payload_parsed = json.loads(payload)
+            # values
             session_token = payload_parsed['session_token']
             member_id = payload_parsed['value']['id']
             new_status = AuthorizationStatus.from_string(payload_parsed['value']['new_status'])
+            date = payload_parsed['value']['date'] if payload_parsed['value']['date'] else None
+
             # check authentication
             if not self._session_db.check_token(session_token):
                 raise Exception("Session token is invalid.")
 
-            if self._members_api.update_status(new_status, member_id):
+            if self._members_api.update_status(member_id, new_status, date):
                 self._logger.success("Successfully updated a status of a member")
                 self._send_message(str(MemberResponse.OK), "edit_member_status/response")
             else:
