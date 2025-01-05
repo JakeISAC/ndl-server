@@ -4,7 +4,6 @@ from threading import Thread
 
 from cassandra.cluster import Cluster
 
-from database.session_db import DbOperationsSession
 from logs.logs import Logs
 from util.endpoints import Endpoints
 
