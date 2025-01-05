@@ -9,6 +9,6 @@ if __name__ == '__main__':
     # start session token daemon
     session_daemon = SessionTokenDaemon()
     session_daemon.run()
-    # start face detection daemon -- core function -> needs to be initiated last
+    # start face detection daemon --- core function --- needs to be initiated last
     face_detection = FaceDetection(mqtt)
     face_detection.run()
