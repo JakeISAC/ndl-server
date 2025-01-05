@@ -1,10 +1,9 @@
 from loguru import logger
 
+logging = logger
+logging.add("/home/ubuntu/ndl/logs/general.log", rotation="100 MB", level="ERROR")
 
 class Logs:
-    def __init__(self):
-        self._logger = logger
-        # self._logger.add("/home/ubuntu/ndl/logs/general.log", rotation="100 MB", level="ERROR")
-
-    def get_logger(self):
-        return self._logger
+    @classmethod
+    def get_logger(cls):
+        return logging
