@@ -43,9 +43,13 @@ class SessionTokenDaemon:
             self._logger.exception(f"Failed to delete outdated tokens: {e}")
 
     def _run(self):
-        while True:
-            self._delete_outdated_tokens()
-            time.sleep(86400)
+        try:
+            while True:
+                self._delete_outdated_tokens()
+                self._logger.debug("Sleeping for 24 hours")
+                time.sleep(86400)
+        except Exception as e:
+            self._logger.exception(f"Failed to run the session token daemon: {e}")
 
     def run(self):
         daemon_thread = Thread(target=self._run)
