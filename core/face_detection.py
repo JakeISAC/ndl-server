@@ -33,7 +33,7 @@ class FaceDetection:
                              'authorized_faces/images/masha/img_1.png',
                              'authorized_faces/images/anastasija/photo_2024-09-24_09-09-44.jpg']
 
-    def start(self):
+    def run(self):
         # self._cam.start()
         while True:
             # pil_image = self._cam.capture_image()

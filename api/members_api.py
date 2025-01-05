@@ -30,7 +30,7 @@ class MembersApi:
     def delete_member(self, member_id):
         self._logger.trace("Attempting to delete a member")
         try:
-            return self._db_access.remove(member_id)
+            return self._db_access.delete(member_id)
         except Exception as e:
             self._logger.exception(f"{e}")
             return None

@@ -40,12 +40,17 @@ class DbOperationsMembers:
             self._logger.exception(f"Failed to upload {member.name}: {e}")
             return None
 
-    def remove(self, member_id: uuid.UUID):
+    def delete(self, member_id: uuid.UUID):
         try:
-            query_str = f"DELETE FROM {self._endpoints.MEMBER_TABLE} WHERE id=? ALLOW FILTERING"
-            query = self._session.prepare(query_str)
-            self._session.execute(query, [member_id])
-            self._logger.debug(f"Removed {member_id}")
+            select_query = f"SELECT name FROM {self._endpoints.MEMBER_TABLE} WHERE id=? ALLOW FILTERING"
+            prepared_query = self._session.prepare(select_query)
+            rows_to_delete = self._session.execute(prepared_query, [member_id])
+
+            for row in rows_to_delete:
+                query_str = f"DELETE FROM {self._endpoints.MEMBER_TABLE} WHERE name=?"
+                query = self._session.prepare(query_str)
+                self._session.execute(query, [row.name])
+                self._logger.debug(f"Removed {row.name}, {member_id}")
             return True
         except Exception as e:
             self._logger.exception(f"Failed to remove {member_id}: {e}")
