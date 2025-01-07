@@ -40,7 +40,12 @@ class FaceDetection:
                     self._logger.error("Failed to create an array from captured frame")
                     continue
 
-                face_locations = face_recognition.face_locations(frame, model=self._model)
+                try:
+                    face_locations = face_recognition.face_locations(frame, model=self._model)
+                except Exception as e:
+                    self._logger.exception(f"Failed to find face locations: {e}")
+                    continue
+
                 if face_locations:
                     # Since a user can update a status or delete a member we need to always get new authorized people
                     try:
@@ -53,7 +58,12 @@ class FaceDetection:
                     self._logger.debug("Faces found")
                     detected_people_authorization = []
 
-                    face_encodings = face_recognition.face_encodings(frame, face_locations)
+                    try:
+                        face_encodings = face_recognition.face_encodings(frame, face_locations)
+                    except Exception as e:
+                        self._logger.exception(f"Failed to encode faces: {e}")
+                        continue
+
                     self._logger.debug("Faces encoded")
                     image = Image.fromarray(frame)
                     draw = ImageDraw.Draw(image)
