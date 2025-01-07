@@ -23,7 +23,8 @@ class FaceDetection:
         self._video_box_name = "Face Detection"
         self._model = "hog"
         self._threshold = 0.9
-        self._authorized_people = self._member_db.get_all()
+        self._base_people = self._member_db.get_all()
+        self._authorized_people = self._base_people
         self._draw = Drawing()
         self._security = Security()
         self._mqtt = mqtt
@@ -38,7 +39,11 @@ class FaceDetection:
         # self._cam.start()
         while True:
             # pil_image = self._cam.capture_image()
-            self._authorized_people = self._member_db.get_all()
+            try:
+                self._authorized_people = self._member_db.get_all()
+            finally:
+                self._authorized_people = self._base_people
+
             pil_image = Image.open(random.choice(self._test_images))
             rgb_image = pil_image.convert('RGB')
             frame = np.array(rgb_image)
