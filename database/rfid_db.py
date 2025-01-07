@@ -17,7 +17,7 @@ class DbOperationsRfid:
             self._logger.info("Connecting to Rfid database")
             return self._cluster.connect()
         except Exception as e:
-            self._logger.exception(f"Failed to connect to Rfid database: {e}")
+            self._logger.critical(f"Failed to connect to Rfid database: {e}")
             raise e
 
     def upload(self, rfid: str):

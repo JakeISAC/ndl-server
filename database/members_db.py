@@ -22,7 +22,7 @@ class DbOperationsMembers:
             self._logger.info("Connecting to Members database")
             return self._cluster.connect()
         except Exception as e:
-            self._logger.exception(f"Failed to connect to Members database: {e}")
+            self._logger.critical(f"Failed to connect to Members database: {e}")
             raise e
 
     def upload(self, member: Member):
@@ -58,14 +58,24 @@ class DbOperationsMembers:
 
     def update_status(self, member_id, new_status, date=None):
         try:
-            if AuthorizationStatus.AUTHORIZED or AuthorizationStatus.NOT_AUTHORIZED:
-                query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=? WHERE id = ? ALLOW FILTERING"
+            select_query = f"SELECT name,path_to_images FROM {self._endpoints.MEMBER_TABLE} WHERE id=? ALLOW FILTERING"
+            prepared_query = self._session.prepare(select_query)
+            rows_to_update = self._session.execute(prepared_query, [member_id])
+
+            if not rows_to_update:
+                raise Exception(f"Member with id {member_id} not found.")
+
+            if new_status == AuthorizationStatus.AUTHORIZED or new_status == AuthorizationStatus.NOT_AUTHORIZED:
+                query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=? WHERE name=? AND path_to_images=?"
             else:
-                query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=?, access_remaining_date_time=? WHERE id = ? ALLOW FILTERING"
-            query = self._session.prepare(query_str)
-            self._session.execute(query, [new_status, member_id]) if date is None else self._session.execute(query, [
-                new_status, date, member_id])
-            self._logger.debug(f"Updated {member_id} with {AuthorizationStatus.__str__(new_status)}")
+                query_str = f"UPDATE {self._endpoints.MEMBER_TABLE} SET authorization_status=?, access_remaining_date_time=? WHERE name=? AND path_to_images=?"
+
+            for row in rows_to_update:
+                query = self._session.prepare(query_str)
+                self._session.execute(query, [new_status.value, row.name,
+                                              row.path_to_images]) if not date else self._session.execute(query, [
+                    new_status.value, date, row.name, row.path_to_images])
+                self._logger.debug(f"Updated {member_id} with {AuthorizationStatus.__str__(new_status)}")
             return True
         except Exception as e:
             self._logger.exception(f"Failed to update {member_id}: {e}")
@@ -100,20 +110,20 @@ class DbOperationsMembers:
             self._logger.exception(f"Failed to retrieve members: {e}")
             return None
 
-    def search_name(self, name):
+    def search_user(self, member_id):
         try:
-            if not name:
-                raise Exception("Name is null")
+            if not member_id:
+                raise Exception("Member id not provided.")
 
             members = []
-            query_str = f"SELECT * FROM {self._endpoints.MEMBER_TABLE} WHERE name=? ALLOW FILTERING"
+            query_str = f"SELECT * FROM {self._endpoints.MEMBER_TABLE} WHERE id=? ALLOW FILTERING"
             query = self._session.prepare(query_str)
-            for row in self._session.execute(query, [name]):
+            for row in self._session.execute(query, [member_id]):
                 members.append(self._row_to_member(row))
-            self._logger.debug(f"Found {len(members)} members with name {name}")
+            self._logger.debug(f"Found members with id {member_id}")
             return members
         except Exception as e:
-            self._logger.exception(f"Failed to find {name}: {e}")
+            self._logger.exception(f"Failed to find {member_id}: {e}")
             return None
 
     @classmethod

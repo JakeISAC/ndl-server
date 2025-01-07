@@ -1,4 +1,5 @@
 import json
+import subprocess
 from typing import List
 
 from database.members_db import DbOperationsMembers
@@ -30,7 +31,14 @@ class MembersApi:
     def delete_member(self, member_id):
         self._logger.trace("Attempting to delete a member")
         try:
-            return self._db_access.delete(member_id)
+            members = self._db_access.search_user(member_id)
+            if self._db_access.delete(member_id):
+                for member in members:
+                    try:
+                        subprocess.run(["rm", "-rf", str(member.images_path)])
+                    except Exception as e:
+                        self._logger.warning(f"Failed to delete member images: {e}")
+            return True
         except Exception as e:
             self._logger.exception(f"{e}")
             return None
@@ -38,7 +46,7 @@ class MembersApi:
     def update_status(self, member_id, new_status, date=None):
         self._logger.trace("Attempting to update member status")
         try:
-            return self._db_access.update_status(new_status, member_id, date)
+            return self._db_access.update_status(member_id, new_status, date)
         except Exception as e:
             self._logger.exception(f"{e}")
             return None

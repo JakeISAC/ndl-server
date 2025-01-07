@@ -19,7 +19,7 @@ class DbOperationsSession:
             self._logger.info("Connecting to Session database")
             return self._cluster.connect()
         except Exception as e:
-            self._logger.exception(f"Failed to connect to Session database: {e}")
+            self._logger.critical(f"Failed to connect to Session database: {e}")
             raise e
 
     def upload(self, token):

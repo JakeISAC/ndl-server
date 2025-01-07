@@ -32,7 +32,7 @@ class MQTTServer:
         self._client.subscribe("add_member")
         self._client.subscribe("all_members")
         self._client.subscribe("rfid")
-        self._client.subscribe("edit_member")
+        self._client.subscribe("edit_member_status")
         self._client.subscribe("delete_member")
         self._client.subscribe("change_password")
 

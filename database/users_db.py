@@ -18,7 +18,7 @@ class DbOperationsUsers:
             self._logger.info("Connecting to User database")
             return self._cluster.connect()
         except Exception as e:
-            self._logger.exception(f"Failed to connect to User database: {e}")
+            self._logger.critical(f"Failed to connect to User database: {e}")
             raise e
 
     def upload(self, user: User):

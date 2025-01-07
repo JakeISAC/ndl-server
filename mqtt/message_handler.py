@@ -203,7 +203,7 @@ class MessageHandler:
             payload_parsed = json.loads(payload)
             # values
             session_token = payload_parsed['session_token']
-            member_id = payload_parsed['value']['id']
+            member_id = uuid.UUID(payload_parsed['value']['id'])
             new_status = AuthorizationStatus.from_string(payload_parsed['value']['new_status'])
             date = payload_parsed['value']['date'] if payload_parsed['value']['date'] else None
 
