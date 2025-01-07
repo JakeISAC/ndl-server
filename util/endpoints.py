@@ -17,11 +17,6 @@ class Endpoints:
     # RFID Database
     KEYSPACE_RFID = "rfid"
     RFID_TABLE = "uid"
-
-    # security
-    PRIVATE_KEY_PATH = "./dh-keys/local/private_key.pem"
-    PUBLIC_KEY_PATH = "./dh-keys/local/public_key.pem"
-
     # MQTT
     MQTT_USERNAME = "server"
     MQTT_PASSWORD = "ndl@group3"
