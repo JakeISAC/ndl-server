@@ -10,6 +10,7 @@ from core.security import Security
 from database.members_db import DbOperationsMembers
 from face_recognition_util.compare_faces import CompareFaces
 from face_recognition_util.draw_face import Drawing
+from logs.logs import Logs
 from mqtt.mqtt import MQTTServer
 
 
@@ -19,6 +20,7 @@ from mqtt.mqtt import MQTTServer
 class FaceDetection:
     def __init__(self, mqtt: MQTTServer):
         # self._cam = Picamera2()
+        self._logger = Logs().get_logger()
         self._member_db = DbOperationsMembers()
         self._video_box_name = "Face Detection"
         self._model = "hog"
@@ -30,28 +32,39 @@ class FaceDetection:
         self._mqtt = mqtt
         # TODO: remove before production
         self._test_images = ['authorized_faces/images/anastasija/photo_2024-09-24_09-09-44.jpg',
-                             'authorized_faces/images/anastasija/photo_2024-09-24_09-09-44.jpg',
+                             'authorized_faces/not_faces/art.jpg',
+                             'authorized_faces/not_faces/mountains.jpg',
                              'authorized_faces/images/jakub/photo_2024-09-15_19-58-56.jpg',
+                             'authorized_faces/not_faces/art-2.jpg',
+                             'authorized_faces/not_faces/pixels.jpg',
                              'authorized_faces/images/masha/img_1.png',
-                             'authorized_faces/images/anastasija/photo_2024-09-24_09-09-44.jpg']
+                             'authorized_faces/not_faces/plane.jpg',
+                             'authorized_faces/images/jakub/photo_2024-09-15_19-58-49.jpg',
+                             'authorized_faces/images/anastasija/photo_2024-09-24_09-09-53.jpg'
+                             ]
 
     def run(self):
         # self._cam.start()
         while True:
             # pil_image = self._cam.capture_image()
-            try:
-                self._authorized_people = self._member_db.get_all()
-            finally:
-                self._authorized_people = self._base_people
 
             pil_image = Image.open(random.choice(self._test_images))
             rgb_image = pil_image.convert('RGB')
             frame = np.array(rgb_image)
             if not frame.any():
+                self._logger.debug("No frame received")
                 continue
 
             face_locations = face_recognition.face_locations(frame, model=self._model)
             if face_locations:
+                self._logger.debug(f"Found {len(face_locations)} faces")
+                try:
+                    self._authorized_people = self._member_db.get_all()
+                    self._logger.debug("Manged to get all people from the database")
+                finally:
+                    self._authorized_people = self._base_people
+                    self._logger.critical("Failed to get all people from the database --- reverting base_people")
+
                 detected_people_authorization = []
 
                 face_encodings = face_recognition.face_encodings(frame, face_locations)
