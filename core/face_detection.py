@@ -48,7 +48,7 @@ class FaceDetection:
                         self._logger.debug("Authorized people updated")
                     finally:
                         self._authorized_people = self._base_people
-                        self._logger.debug("Base people restored --- initial state when server started")
+                        self._logger.critical("Base people restored --- initial state when server started")
                         
                     self._logger.debug("Faces found")
                     detected_people_authorization = []
