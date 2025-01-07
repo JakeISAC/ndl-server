@@ -55,7 +55,12 @@ class FaceDetection:
                 self._logger.debug("No frame received")
                 continue
 
-            face_locations = face_recognition.face_locations(frame, model=self._model)
+            try:
+                face_locations = face_recognition.face_locations(frame, model=self._model)
+            except Exception as e:
+                self._logger.exception(f"Failed to find face locations: {e}")
+                continue
+
             if face_locations:
                 self._logger.debug(f"Found {len(face_locations)} faces")
                 try:
@@ -94,7 +99,7 @@ class FaceDetection:
 
             # if cv2.waitKey(1) & 0xFF == ord('q'):
             #     break
-            time.sleep(5)
+            time.sleep(20)
 
         # cv2.destroyAllWindows()
 
