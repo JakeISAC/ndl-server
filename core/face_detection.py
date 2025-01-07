@@ -46,9 +46,9 @@ class FaceDetection:
                     try:
                         self._authorized_people = self._member_db.get_all()
                         self._logger.debug("Authorized people updated")
-                    finally:
+                    except Exception as e:
                         self._authorized_people = self._base_people
-                        self._logger.critical("Base people restored --- initial state when server started")
+                        self._logger.debug(f"Base people restored --- initial state when server started: {e}")
                         
                     self._logger.debug("Faces found")
                     detected_people_authorization = []
