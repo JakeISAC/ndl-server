@@ -61,9 +61,9 @@ class FaceDetection:
                 try:
                     self._authorized_people = self._member_db.get_all()
                     self._logger.debug("Manged to get all people from the database")
-                finally:
+                except Exception as e:
                     self._authorized_people = self._base_people
-                    self._logger.critical("Failed to get all people from the database --- reverting base_people")
+                    self._logger.critical(f"Failed to get all people from the database --- reverting base_people: {e}")
 
                 detected_people_authorization = []
 
