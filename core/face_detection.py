@@ -5,6 +5,7 @@ import subprocess
 from PIL import ImageDraw, Image
 from picamera2 import Picamera2
 
+from logs.logs import Logs
 from mqtt.mqtt import MQTTServer
 from face_recognition_util.compare_faces import CompareFaces
 from database.members_db import DbOperationsMembers
@@ -38,17 +39,17 @@ class FaceDetection:
                 if not frame.any():
                     self._logger.error("Failed to create an array from captured frame")
                     continue
-                
-                """
-                    Since a user can update a status or delete a member we need to always get new authorized people
-                """
-                try:
-                    self._authorized_people = self._member_db.get_all()
-                finally:
-                    self._authorized_people = self._base_people
 
                 face_locations = face_recognition.face_locations(frame, model=self._model)
                 if face_locations:
+                    # Since a user can update a status or delete a member we need to always get new authorized people
+                    try:
+                        self._authorized_people = self._member_db.get_all()
+                        self._logger.debug("Authorized people updated")
+                    finally:
+                        self._authorized_people = self._base_people
+                        self._logger.debug("Base people restored --- initial state when server started")
+                        
                     self._logger.debug("Faces found")
                     detected_people_authorization = []
 
