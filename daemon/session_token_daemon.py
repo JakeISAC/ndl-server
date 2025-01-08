@@ -38,7 +38,7 @@ class SessionTokenDaemon:
                 prepared_delete = self._session.prepare(delete_query)
                 self._session.execute(prepared_delete, [row.session_token])
 
-            self._logger.debug("Deleted outdated tokens")
+            self._logger.debug(f"Deleted {len(rows_to_delete)} outdated tokens")
         except Exception as e:
             self._logger.exception(f"Failed to delete outdated tokens: {e}")
 
