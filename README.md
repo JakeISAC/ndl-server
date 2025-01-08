@@ -1,6 +1,6 @@
 # Installation instructions
 
-For nice step by step check out the project Wiki. 
+**For nice step by step check out the project Wiki.**
 
 **Note**
 
