@@ -2,6 +2,8 @@
 
 **For nice step by step check out the project Wiki.**
 
+---
+
 **Note**
 
 For some reason `PiCamera2` does not want to work in the virtual environment so it might be necessary to
