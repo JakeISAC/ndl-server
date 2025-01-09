@@ -27,7 +27,7 @@ class MQTTServer:
         self._client.on_message = self._on_message
         self._connect()
         # subscribe to the topic I need to listen to
-        self._client.subscribe("login_ask")
+        self._client.subscribe("login")
         self._client.subscribe("register")
         self._client.subscribe("add_member")
         self._client.subscribe("all_members")
