@@ -26,7 +26,7 @@ class MessageHandler:
         self._session_db = DbOperationsSession()
         self._send_message = send_message  # function
         # endpoints to user api
-        self._login = "login_ask"
+        self._login = "login"
         self._register = "register"
         self._change_password = "change_password"
         self._add_member = "add_member"
@@ -74,14 +74,14 @@ class MessageHandler:
                 response['code'] = str(UserCodes.OK)
                 response['session_token'] = token
                 self._logger.success("Successfully logged in")
-                self._send_message(json.dumps(response), "login_response")
+                self._send_message(json.dumps(response), "login/response")
             else:
                 self._logger.warning("Token is invalid")
-                self._send_message(json.dumps(response), "login_response")
+                self._send_message(json.dumps(response), "login/response")
         except Exception as e:
             self._logger.exception(f"Failed to login: {e}")
             response = {'code': str(UserCodes.FAILED), 'session_token': None}
-            self._send_message(json.dumps(response), "login_response")
+            self._send_message(json.dumps(response), "login/response")
 
     def _handle_user_register(self, payload):
         try:
@@ -100,13 +100,13 @@ class MessageHandler:
 
             if self._user_api.register(user_data):
                 self._logger.success(f"Successfully registered new user {user}")
-                self._send_message(str(UserCodes.OK), "register_response")
+                self._send_message(str(UserCodes.OK), "register/response")
             else:
                 self._logger.warning(f"Failed to register a new user {user}")
-                self._send_message(str(UserCodes.FAILED), "register_response")
+                self._send_message(str(UserCodes.FAILED), "register/response")
         except Exception as e:
             self._logger.exception(f"Failed to register a new user: {e}")
-            self._send_message(str(UserCodes.FAILED), "register_response")
+            self._send_message(str(UserCodes.FAILED), "register/response")
 
     def _handle_change_password(self, payload):
         try:
@@ -148,13 +148,13 @@ class MessageHandler:
 
             if self._members_api.add_member(member_extracted):
                 self._logger.success(f"Successfully added a new member {member}")
-                self._send_message(str(MemberResponse.OK), "add_member_response")
+                self._send_message(str(MemberResponse.OK), "add_member/response")
             else:
                 self._logger.warning(f"Failed to add a new member {member}")
-                self._send_message(str(MemberResponse.FAILED), "add_member_response")
+                self._send_message(str(MemberResponse.FAILED), "add_member/response")
         except Exception as e:
             self._logger.exception(f"Failed to add a new member: {e}")
-            self._send_message(str(MemberResponse.FAILED), "add_member_response")
+            self._send_message(str(MemberResponse.FAILED), "add_member/response")
 
     def _handle_all_members(self, payload):
         try:
@@ -169,13 +169,13 @@ class MessageHandler:
             members = self._members_api.get_all_members()
             if members:
                 self._logger.success("Successfully retrieved all members")
-                self._send_message(members, "all_members_response")
+                self._send_message(members, "all_members/response")
             else:
                 self._logger.warning("Failed to retrieved all members")
-                self._send_message(str(MemberResponse.FAILED), "all_members_response")
+                self._send_message(str(MemberResponse.FAILED), "all_members/response")
         except Exception as e:
             self._logger.exception(f"Failed to retrieved all members: {e}")
-            self._send_message(str(MemberResponse.FAILED), "all_members_response")
+            self._send_message(str(MemberResponse.FAILED), "all_members/response")
 
     def _handle_delete_member(self, payload):
         try:
@@ -190,13 +190,13 @@ class MessageHandler:
 
             if self._members_api.delete_member(member_id):
                 self._logger.success(f"Successfully deleted a member with ID: {member_id}")
-                self._send_message(str(DeleteCodes.OK), "delete_response")
+                self._send_message(str(DeleteCodes.OK), "delete/response")
             else:
                 self._logger.warning(f"Failed to delete a member with ID: {member_id}")
-                self._send_message(str(DeleteCodes.FAILED), "delete_response")
+                self._send_message(str(DeleteCodes.FAILED), "delete/response")
         except Exception as e:
             self._logger.exception(f"Failed to delete a member: {e}")
-            self._send_message(str(DeleteCodes.FAILED), "delete_response")
+            self._send_message(str(DeleteCodes.FAILED), "delete/response")
 
     def _handle_edit_member_status(self, payload):
         try:
