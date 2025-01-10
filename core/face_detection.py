@@ -16,7 +16,7 @@ from core.security import Security
 class FaceDetection:
     def __init__(self, mqtt: MQTTServer):
         self._logger = Logs().get_logger()
-        self._member_db = DbOperationsMembers().get_all()
+        self._member_db = DbOperationsMembers()
         self._cam = Picamera2()
         self._video_box_name = "Face Detection"
         self._model = "hog"
